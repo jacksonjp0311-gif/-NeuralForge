@@ -35,7 +35,7 @@ td{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,.03)}
 .ii{padding:7px 9px;background:rgba(255,255,255,.02);border:1px solid var(--bd);border-radius:6px;border-left:3px solid var(--c)}
 .ii.g{border-left-color:var(--g)}.ii.y{border-left-color:var(--y)}.ii.r{border-left-color:var(--r)}
 .it{font-size:10px;font-weight:600;margin-bottom:2px}
-.ib{font-size:9px;color:var(--d);line-height:1:1.5}
+.ib{font-size:9px;color:var(--d);line-height:1.5}
 .stream{background:rgba(0,0,0,.4);border-radius:6px;padding:8px;max-height:150px;overflow-y:auto;font-family:'Courier New',monospace;font-size:8px;line-height:1.6}
 .stream .ts{color:var(--d)}.stream .ok{color:var(--g)}.stream .warn{color:var(--y)}.stream .err{color:var(--r)}.stream .info{color:var(--c)}
 .gauge{display:flex;align-items:center;gap:12px;padding:4px 0}
@@ -227,21 +227,23 @@ function updateDashboard(data) {
   document.getElementById('lastUpdate').textContent = 'Updated ' + new Date().toLocaleTimeString();
 }
 
+const API = 'http://127.0.0.1:9876/api/evo-results';
+
 async function fetchData() {
   try {
-    const r = await fetch('/api/evo-results');
+    const r = await fetch(API);
     if (r.ok) {
       const d = await r.json();
       updateDashboard(d);
       addLog('Data refreshed', 'ok');
     }
   } catch(e) {
-    addLog('Using cached data', 'warn');
+    addLog('Dashboard server not running — start serve_dashboard.py', 'warn');
   }
 }
 
 // Load cached data on start
-fetch('/api/evo-results').then(r=>r.json()).then(d=>{updateDashboard(d);addLog('Dashboard loaded','ok');}).catch(()=>{addLog('No cached data yet','warn');});
+fetch(API).then(r=>r.json()).then(d=>{updateDashboard(d);addLog('Dashboard loaded','ok');}).catch(()=>{addLog('Start serve_dashboard.py for live data','warn');});
 
 // Auto-refresh every 30s
 setInterval(fetchData, 30000);
