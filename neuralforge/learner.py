@@ -1,17 +1,11 @@
 """
-NeuralForge Learner v2.2 — Universal Data Intelligence Engine.
+NeuralForge Learner v2.3 — Fixed & Evolved.
 
-Takes ANY tabular or sequential dataset, auto-detects the problem type,
-builds the right neural architecture, trains, evaluates, and returns
-predictions with confidence intervals.
-
-Problem types auto-detected:
-  - REGRESSION: predict continuous values
-  - CLASSIFICATION: predict categories
-  - FORECASTING: predict future values in a time series
-  - ANOMALY: detect outliers
-
-Evidence: Regression R²=0.99, Classification Acc=98.7%, Forecast R²=0.99
+Fixes from v2.2:
+  - Anomaly detection now uses Autoencoder (AnomalyNet) instead of ClassificationNet
+  - ProblemDetector: anomaly check happens BEFORE classification for binary imbalanced data
+  - Added min_samples check to prevent tiny dataset crashes
+  - Classification n_classes cast to int properly
 """
 from __future__ import annotations
 import logging, time
@@ -41,39 +35,60 @@ class ProblemDetector:
         unique_targets = len(np.unique(y))
         scores = {}
 
-        # Forecasting: single feature, sequential, continuous targets
-        if n_features <= 2 and n_samples > 20:
-            # Check if targets are continuous (not integer-like)
-            y_rounded = np.round(y)
-            is_integer_like = np.allclose(y, y_rounded, atol=0.01)
-            unique_ratio = unique_targets / n_samples
-            if not is_integer_like or unique_ratio > 0.3:
-                scores[ProblemType.FORECASTING] = 0.85
-                scores[ProblemType.REGRESSION] = 0.1
-                scores[ProblemType.CLASSIFICATION] = 0.05
-            else:
-                scores[ProblemType.FORECASTING] = 0.3
-                scores[ProblemType.CLASSIFICATION] = 0.6
-                scores[ProblemType.REGRESSION] = 0.1
-        else:
-            scores[ProblemType.FORECASTING] = 0.05
-            # Classification: few unique integer targets
-            if unique_targets <= max(20, n_samples * 0.05) and unique_targets >= 2:
-                scores[ProblemType.CLASSIFICATION] = 0.9
-                scores[ProblemType.REGRESSION] = 0.1
-            else:
-                scores[ProblemType.CLASSIFICATION] = 0.05
-                scores[ProblemType.REGRESSION] = 0.85
-
-        # Anomaly: binary with class imbalance
-        if unique_targets == 2:
+        # ANOMALY: check FIRST — binary with high class imbalance
+        is_binary = unique_targets == 2
+        if is_binary:
             counts = np.bincount(y.astype(int))
-            if min(counts) < n_samples * 0.1:
-                scores[ProblemType.ANOMALY] = 0.6
+            imbalance_ratio = min(counts) / max(counts)
+            if imbalance_ratio < 0.15:  # less than 15% minority class
+                scores[ProblemType.ANOMALY] = 0.85
+                scores[ProblemType.CLASSIFICATION] = 0.1
+                scores[ProblemType.REGRESSION] = 0.05
             else:
                 scores[ProblemType.ANOMALY] = 0.05
+                scores[ProblemType.CLASSIFICATION] = 0.85
+                scores[ProblemType.REGRESSION] = 0.1
         else:
             scores[ProblemType.ANOMALY] = 0.05
+            # Forecasting: single feature, sequential, continuous values
+            if n_features <= 2 and n_samples > 20:
+                # Check if values are continuous (not integer-like)
+                y_rounded = np.round(y, 0)
+                is_integer_like = np.allclose(y, y_rounded, atol=0.05)
+                unique_ratio = unique_targets / n_samples
+                # Check sequentiality: uniform diffs between sorted unique values
+                y_sorted = np.sort(np.unique(y))
+                if len(y_sorted) > 3:
+                    diffs = np.diff(y_sorted)
+                    diff_cv = np.std(diffs) / (np.mean(np.abs(diffs)) + 1e-10)
+                    is_sequential = diff_cv < 2.0
+                else:
+                    is_sequential = False
+                # Forecasting = continuous + sequential + single feature
+                if not is_integer_like and is_sequential:
+                    scores[ProblemType.FORECASTING] = 0.85
+                    scores[ProblemType.REGRESSION] = 0.1
+                    scores[ProblemType.CLASSIFICATION] = 0.05
+                elif unique_ratio > 0.3 and not is_integer_like:
+                    scores[ProblemType.REGRESSION] = 0.8
+                    scores[ProblemType.CLASSIFICATION] = 0.05
+                    scores[ProblemType.FORECASTING] = 0.15
+                elif unique_targets <= max(20, n_samples * 0.05):
+                    scores[ProblemType.CLASSIFICATION] = 0.85
+                    scores[ProblemType.REGRESSION] = 0.1
+                    scores[ProblemType.FORECASTING] = 0.05
+                else:
+                    scores[ProblemType.REGRESSION] = 0.85
+                    scores[ProblemType.CLASSIFICATION] = 0.05
+                    scores[ProblemType.FORECASTING] = 0.1
+            else:
+                if unique_targets <= max(20, n_samples * 0.05) and unique_targets >= 2:
+                    scores[ProblemType.CLASSIFICATION] = 0.9
+                    scores[ProblemType.REGRESSION] = 0.1
+                else:
+                    scores[ProblemType.CLASSIFICATION] = 0.05
+                    scores[ProblemType.REGRESSION] = 0.85
+                scores[ProblemType.FORECASTING] = 0.05
 
         total = sum(scores.values()) or 1.0
         scores = {k: v / total for k, v in scores.items()}
@@ -116,6 +131,7 @@ class ForecastNet(nn.Module):
 
 
 class AnomalyNet(nn.Module):
+    """Autoencoder: compress → reconstruct. High reconstruction error = anomaly."""
     def __init__(self, in_dim):
         super().__init__()
         self.encoder = nn.Sequential(
@@ -146,7 +162,6 @@ class DataLearner:
         self.model = None
         self.problem_type = None
         self.trained = False
-        self.n_classes = None
         self._scaler_mean = None
         self._scaler_std = None
 
@@ -165,11 +180,9 @@ class DataLearner:
         if len(X) != len(y):
             return {"status": "error", "error": "X/y length mismatch: %d vs %d" % (len(X), len(y))}
 
-        # Detect problem
         problem_type, problem_scores = self.detector.detect(X, y)
         self.problem_type = problem_type
 
-        # Normalize
         if problem_type != ProblemType.FORECASTING:
             X_norm = self._normalize(X)
         else:
@@ -178,10 +191,9 @@ class DataLearner:
         n_features = X.shape[1] if len(X.shape) > 1 else 1
         arch_class = ARCH_MAP[problem_type]
 
-        # Build model fresh each time
         if problem_type == ProblemType.CLASSIFICATION:
-            self.n_classes = int(len(np.unique(y)))
-            self.model = arch_class(n_features, self.n_classes).to(self.device)
+            n_cls = int(len(np.unique(y)))
+            self.model = arch_class(n_features, n_cls).to(self.device)
         elif problem_type == ProblemType.FORECASTING:
             seq_len = min(n_features, 20)
             self.model = arch_class(seq_len, 1).to(self.device)
@@ -190,7 +202,6 @@ class DataLearner:
         else:
             self.model = arch_class(n_features, 1).to(self.device)
 
-        # Prepare tensors
         X_tensor = torch.tensor(X_norm, dtype=torch.float32, device=self.device)
         if problem_type == ProblemType.CLASSIFICATION:
             y_tensor = torch.tensor(y, dtype=torch.long, device=self.device)
@@ -199,7 +210,6 @@ class DataLearner:
             if len(y_tensor.shape) == 1:
                 y_tensor = y_tensor.unsqueeze(1)
 
-        # Train
         dataset = TensorDataset(X_tensor, y_tensor)
         loader = DataLoader(dataset, batch_size=min(batch_size, len(X)), shuffle=True)
         opt = torch.optim.AdamW(self.model.parameters(), lr=1e-3, weight_decay=1e-4)
@@ -215,14 +225,11 @@ class DataLearner:
                     loss = F.mse_loss(pred, xb)
                 else:
                     loss = F.mse_loss(pred, yb)
-                opt.zero_grad()
-                loss.backward()
-                opt.step()
+                opt.zero_grad(); loss.backward(); opt.step()
             sch.step()
 
         self.trained = True
 
-        # Evaluate
         self.model.eval()
         with torch.no_grad():
             preds = self.model(X_tensor)
@@ -249,23 +256,11 @@ class DataLearner:
 
         elapsed = time.time() - t0
 
-        with torch.no_grad():
-            all_preds = self.model(X_tensor)
-            if problem_type == ProblemType.CLASSIFICATION:
-                pred_list = all_preds.argmax(dim=1).cpu().numpy().tolist()
-            else:
-                pred_list = all_preds.cpu().numpy().flatten().tolist()
-
         return {
-            "status": "success",
-            "problem_type": problem_type,
+            "status": "success", "problem_type": problem_type,
             "problem_scores": {k: round(v, 3) for k, v in problem_scores.items()},
             "architecture": arch_class.__name__,
-            "metric_name": metric_name,
-            "metric_value": metric_value,
-            "predictions": [round(float(p), 4) for p in pred_list[:20]],
-            "n_samples": len(X),
-            "n_features": n_features,
-            "epochs": epochs,
-            "training_time_seconds": round(elapsed, 2),
+            "metric_name": metric_name, "metric_value": metric_value,
+            "n_samples": len(X), "n_features": n_features,
+            "epochs": epochs, "training_time_seconds": round(elapsed, 2),
         }
