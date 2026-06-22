@@ -1,38 +1,43 @@
 # Changelog
 
-## v2.0.0 — 2026-06-22
+## v2.4.0 — 2026-06-22
 
-### Added
-- **NeuralForgeSpec** — Complete Pydantic v2 spec with YAML serialization, natural language parsing, and config hashing
-- **TrainingEngine** — Production training loop with AMP (FP16/BF16/mixed), EMA, gradient accumulation, LR scheduling, early stopping, reproducibility seeds
-- **ModelEvaluator** — Comprehensive evaluation with per-class metrics, confusion matrix, ECE calibration, failure analysis, recommendations
-- **ArchitectAgent** — LLM-driven architecture proposal with 20+ templates across 8 architecture families
-- **EvolutionarySearch** — Neuro-evolution search with configurable population, mutation, crossover
-- **ScalingLawEstimator** — Fit and predict scaling laws from observations
-- **MetaOptimizer** — Self-critique loop that analyzes training results and proposes improvements
-- **InsightsStore** — Memory store for experiment insights with search and retrieval
-- **Pruning** — L1 unstructured, structured pruning with sparsity tracking
-- **Quantization** — Dynamic INT8 quantization with GPTQ/AWQ/BnB stubs
-- **Distillation** — Knowledge distillation with soft targets, FitNet, attention transfer
-- **Export** — TorchScript, ONNX, Safetensors export pipeline
-- **Callbacks** — ModelCheckpoint, WandbCallback, TensorBoardCallback, ConsoleLogger, LearningRateFinder
-- **Distributed** — DDP, FSDP, DeepSpeed setup utilities
-- **Agent Tools** — LangChain, CrewAI, AutoGen compatible tool wrappers
-- **Multi-Agent** — ForgeOrchestrator with blackboard system for collaborative architecture design
-- **CLI** — Typer-based CLI with `create`, `info`, `list_models` commands
-- **Examples** — CIFAR-10 classification, text classification, RL policy network
-- **Tests** — 102 tests covering specs, models, training, evaluation, optimization, auto-architecture
+### New Tools
+- **neuralforge_smart** — Smart Engine: Universal decision maker with 6 modes (retry, optimize, predict, pattern, fix, analyze). The "always-called" tool that agents use for any data-driven decision.
+- **neuralforge_analyze** — Workflow Analyzer: Predicts failures, detects anomalies, recommends optimizations using Pattern Engine + Data Learner.
+- **neuralforge_evolve** — Evolution Engine: 5-phase self-improvement cycle (observe → learn → predict → optimize → evolve). Uses ALL NeuralForge tools internally.
 
-### Architecture Support
-- CNN, ResNet, Transformer, Vision Transformer, MLP-Mixer, KAN, Mamba/SSM, MoE, RWKV
+### Fixes
+- Pattern detector v2.3: Trend now correctly detected (was over-classifying as seasonal in v2.2). Uses R² + slope significance.
+- Anomaly detection: Now uses Autoencoder (AnomalyNet) instead of ClassificationNet.
+- Forecasting detection: Fixed to detect continuous sequential data (was misclassifying sine waves).
+- Analyzer KeyError when n < 5 (anomalies key missing).
+- Evolution engine _predict handling small workflow groups.
 
-### Quality
-- Fully typed with Pydantic v2
-- 102 passing tests
-- Clean error messages for agent consumption
-- Reproducible with seed control
+### AGNT Plugin
+- 15 tools total (up from 8 in v2.0)
+- Plugin size: 9.2 KB .agnt package
+- All tools have full descriptions, input/output schemas
+- Tested on real AGNT data: 2,947 executions across 10 workflows
+
+### Test Results (all pass)
+- DataLearner Regression R²=0.945, Classification 98.7%
+- Pattern Engine: Trend r=0.77, Seasonal r=0.79
+- Quality Predictor: acc r=0.999, lat r=0.974, mem r=0.993
+- Evolution Engine: 76.7% health score, 3 recommendations
+- Smart Engine: 6/6 decision modes pass
+
+## v2.3.0 — 2026-06-22
+- Added DataLearner v2.3 (4 problem types: regression, classification, forecasting, anomaly)
+- Added Pattern Engine v2.3 (5 pattern types with fixed detector)
+- Added Multi-Objective Quality Predictor (acc/latency/memory)
+- Added Self-Test Suite tool
 
 ## v2.2.0 — 2026-06-22
-- Pattern Engine: universal pattern detection & prediction tool
-- 10 AGNT marketplace tools
-- Multi-objective quality predictor (acc/latency/memory)
+- Added Pattern Engine v2.2 (5 neural architectures)
+
+## v2.1.0 — 2026-06-22
+- Clean rebuild, clean git history
+
+## v2.0.0 — 2026-06-22
+- Initial release: 8 AGNT tools, 102 tests, full Python library
