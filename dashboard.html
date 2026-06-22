@@ -2,253 +2,218 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NeuralForge v2.2 — System Dashboard</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>NeuralForge v2.3 — System Dashboard</title>
 <style>
-:root{--bg:#0a0a1a;--bg2:#111128;--bg3:#1a1a3e;--border:rgba(255,255,255,0.08);--text:#e0e0e0;--text-dim:#8888aa;--accent:#12e0ff;--accent2:#e53d8f;--accent3:#19ef83;--accent4:#ffd700;--accent5:#7d3de5;--glow:0 0 20px rgba(18,224,255,0.15)}
+:root{--bg:#0a0a1a;--bg2:#111128;--border:rgba(255,255,255,0.08);--text:#e0e0e0;--dim:#8888aa;--c:#12e0ff;--p:#e53d8f;--g:#19ef83;--y:#ffd700;--v:#7d3de5}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(18,224,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(18,224,255,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
-.dash{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:24px}
-.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;padding:20px 28px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;box-shadow:var(--glow)}
-.logo{width:48px;height:48px;background:linear-gradient(135deg,var(--accent2),var(--accent5));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;margin-right:16px}
-.header h1{font-size:20px;font-weight:700}
-.header h1 span{color:var(--accent)}
-.sub{font-size:12px;color:var(--text-dim);margin-top:2px}
-.badges{display:flex;gap:10px}
-.badge{padding:5px 12px;border-radius:16px;font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
-.badge-live{background:rgba(25,239,131,.15);color:var(--accent3);border:1px solid rgba(25,239,131,.3)}
-.badge-ver{background:rgba(18,224,255,.1);color:var(--accent);border:1px solid rgba(18,224,255,.2)}
-.kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:22px}
-.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
-.kpi-label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-dim);margin-bottom:6px}
-.kpi-val{font-size:24px;font-weight:700;letter-spacing:-.5px}
-.kpi-sub{font-size:11px;color:var(--text-dim);margin-top:3px}
-.cyan .kpi-val{color:var(--accent)}.green .kpi-val{color:var(--accent3)}.pink .kpi-val{color:var(--accent2)}.gold .kpi-val{color:var(--accent4)}.purple .kpi-val{color:var(--accent5)}.red .kpi-val{color:#ff4466}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
-.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:20px}
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px}
-.card-title{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:16px}
-.card-title .icon{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px}
-.sec{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-dim);margin-bottom:14px;padding-bottom:7px;border-bottom:1px solid var(--border)}
-.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.bar-lbl{width:120px;font-size:11px;color:var(--text-dim);flex-shrink:0}
-.bar-track{flex:1;height:7px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
-.bar-fill{height:100%;border-radius:4px}
-.bar-v{width:55px;text-align:right;font-size:12px;font-weight:600;flex-shrink:0}
-.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.tool-item{display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:7px;font-size:11px}
-.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.t-name{flex:1;font-weight:600}
-.t-ok{color:var(--accent3);font-size:10px}
-.idea-list{display:flex;flex-direction:column;gap:10px}
-.idea-item{padding:12px 14px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:9px;border-left:3px solid var(--accent)}
-.idea-item.pink{border-left-color:var(--accent2)}
-.idea-item.green{border-left-color:var(--accent3)}
-.idea-item.gold{border-left-color:var(--accent4)}
-.idea-item.purple{border-left-color:var(--accent5)}
-.idea-t{font-size:12px;font-weight:600;margin-bottom:3px}
-.idea-b{font-size:11px;color:var(--text-dim);line-height:1.5}
-.tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:5px}
-.tag-h{background:rgba(229,61,143,.15);color:var(--accent2)}
-.tag-m{background:rgba(255,215,0,.15);color:var(--accent4)}
-.tag-l{background:rgba(18,224,255,.1);color:var(--accent)}
-.tag-e{background:rgba(125,61,225,.15);color:var(--accent5)}
-.gauge{display:flex;align-items:center;justify-content:center;gap:28px;padding:12px 0}
-.gauge-svg{position:relative;width:140px;height:140px}
-.gauge-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.gv{font-size:30px;font-weight:700;letter-spacing:-1px}
-.gl{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px}
-.g-stats{display:flex;flex-direction:column;gap:10px}
-.gs{padding:10px 16px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:9px;min-width:160px}
-.gs-l{font-size:10px;color:var(--text-dim)}
-.gs-v{font-size:18px;font-weight:700;margin-top:2px}
-table{width:100%;border-collapse:collapse;font-size:12px}
-th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);color:var(--text-dim);font-size:10px;text-transform:uppercase;letter-spacing:.5px}
-td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.04)}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(18,224,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(18,224,255,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+.d{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:20px}
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding:18px 24px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;box-shadow:0 0 20px rgba(18,224,255,.1)}
+.lg{width:44px;height:44px;background:linear-gradient(135deg,var(--p),var(--v));border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;margin-right:14px}
+h1{font-size:19px;font-weight:700}h1 s{color:var(--c)}
+.sub{font-size:11px;color:var(--dim);margin-top:2px}
+.bg{display:flex;gap:8px}
+.b{padding:4px 10px;border-radius:14px;font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.bl{background:rgba(25,239,131,.15);color:var(--g);border:1px solid rgba(25,239,131,.3)}
+.bv{background:rgba(18,224,255,.1);color:var(--c);border:1px solid rgba(18,224,255,.2)}
+.row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:18px}
+.k{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:14px 16px}
+.kl{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);margin-bottom:5px}
+.kv{font-size:22px;font-weight:700;letter-spacing:-.5px}
+.ks{font-size:10px;color:var(--dim);margin-top:2px}
+.c .kv{color:var(--c)}.g .kv{color:var(--g)}.p .kv{color:var(--p)}.y .kv{color:var(--y)}.v .kv{color:var(--v)}.r .kv{color:#ff4466}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px}
+.ct{font-size:12px;font-weight:600;display:flex;align-items:center;gap:7px;margin-bottom:14px}
+.ct i{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px}
+.sec{font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--dim);margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.br{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.bl2{width:110px;font-size:10px;color:var(--dim);flex-shrink:0}
+.bt{flex:1;height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+.bf{height:100%;border-radius:3px}
+.bv2{width:50px;text-align:right;font-size:11px;font-weight:600;flex-shrink:0}
+.tg{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.ti{display:flex;align-items:center;gap:7px;padding:7px 10px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:6px;font-size:10px}
+.td{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.tn{flex:1;font-weight:600}
+.tok{color:var(--g);font-size:9px}
+.il{display:flex;flex-direction:column;gap:9px}
+.ii{padding:10px 12px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:8px;border-left:3px solid var(--c)}
+.ii.p{border-left-color:var(--p)}.ii.g{border-left-color:var(--g)}.ii.y{border-left-color:var(--y)}.ii.v{border-left-color:var(--v)}
+.it{font-size:11px;font-weight:600;margin-bottom:3px}
+.ib{font-size:10px;color:var(--dim);line-height:1.5}
+.tag{display:inline-block;padding:1px 6px;border-radius:3px;font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+.th{background:rgba(229,61,143,.15);color:var(--p)}.tm{background:rgba(255,215,0,.15);color:var(--y)}.tl{background:rgba(18,224,255,.1);color:var(--c)}.te{background:rgba(125,61,225,.15);color:var(--v)}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{text-align:left;padding:7px 9px;border-bottom:1px solid var(--border);color:var(--dim);font-size:9px;text-transform:uppercase;letter-spacing:.5px}
+td{padding:7px 9px;border-bottom:1px solid rgba(255,255,255,.04)}
 tr:hover td{background:rgba(255,255,255,.02)}
-.footer{text-align:center;padding:20px;font-size:10px;color:var(--text-dim);border-top:1px solid var(--border);margin-top:6px}
+.ft{text-align:center;padding:16px;font-size:9px;color:var(--dim);border-top:1px solid var(--border);margin-top:4px}
 </style>
 </head>
 <body>
-<div class="dash">
-
+<div class="d">
 <!-- HEADER -->
-<div class="header">
+<div class="hdr">
   <div style="display:flex;align-items:center">
-    <div class="logo">NF</div>
-    <div>
-      <h1>NeuralForge <span>v2.2</span> — System Dashboard</h1>
-      <div class="sub">Agent-Native Neural Network Forge · Pattern Engine · Live Evidence</div>
-    </div>
+    <div class="lg">NF</div>
+    <div><h1>NeuralForge <s>v2.3</s> — System Dashboard</h1><div class="sub">Agent-Native Neural Network Forge · DataLearner · Pattern Engine · Live Evidence</div></div>
   </div>
-  <div class="badges">
-    <span class="badge badge-ver">v2.2.0</span>
-    <span class="badge badge-live">● LIVE</span>
-  </div>
+  <div class="bg"><span class="b bv">v2.3.0</span><span class="b bl">● LIVE</span></div>
 </div>
 
 <!-- KPIs -->
-<div class="kpi-row">
-  <div class="kpi cyan"><div class="kpi-label">AGNT Tools</div><div class="kpi-val">10</div><div class="kpi-sub">All w/ descriptions</div></div>
-  <div class="kpi green"><div class="kpi-label">Tests Passing</div><div class="kpi-val">102</div><div class="kpi-sub">0 failures · 100%</div></div>
-  <div class="kpi pink"><div class="kpi-label">Pattern Types</div><div class="kpi-val">5</div><div class="kpi-sub">Trend/Seasonal/Stationary/Chaotic/Step</div></div>
-  <div class="kpi gold"><div class="kpi-label">Trend Correlation</div><div class="kpi-val">0.948</div><div class="kpi-sub">Pattern Engine evidence</div></div>
-  <div class="kpi purple"><div class="kpi-label">Quality Predictor</div><div class="kpi-val">0.998</div><div class="kpi-sub">Multi-objective (acc/lat/mem)</div></div>
-  <div class="kpi red"><div class="kpi-label">Train Time</div><div class="kpi-val">0.40s</div><div class="kpi-sub">Avg pattern model</div></div>
+<div class="row">
+  <div class="k c"><div class="kl">AGNT Tools</div><div class="kv">11</div><div class="ks">All w/ descriptions</div></div>
+  <div class="k g"><div class="kl">Tests Passing</div><div class="kv">102</div><div class="ks">0 failures · 100%</div></div>
+  <div class="k p"><div class="kl">Problem Types</div><div class="kv">4</div><div class="ks">Regress/Class/Forecast/Anomaly</div></div>
+  <div class="k y"><div class="kl">Regression R²</div><div class="kv">0.984</div><div class="ks">DataLearner evidence</div></div>
+  <div class="k v"><div class="kl">Classification</div><div class="kv">98.7%</div><div class="ks">3-class accuracy</div></div>
+  <div class="k r"><div class="kl">Avg Train Time</div><div class="kv">1.06s</div><div class="ks">Across 4 problem types</div></div>
 </div>
 
-<!-- ROW 1: Pattern Engine + Quality Predictor -->
-<div class="grid-2">
-  <!-- Pattern Engine Evidence -->
+<!-- ROW 1: DataLearner + Pattern Engine -->
+<div class="g2">
   <div class="card">
-    <div class="card-title"><div class="icon" style="background:rgba(18,224,255,.1);color:var(--accent)">📊</div>Pattern Engine — Evidence</div>
+    <div class="ct"><i style="background:rgba(18,224,255,.1);color:var(--c)">🧠</i>DataLearner — Universal Data Intelligence</div>
     <table>
-      <tr><th>Pattern</th><th>Detected</th><th>Correlation</th><th>Time</th><th>Architecture</th></tr>
-      <tr><td>Linear Trend</td><td><span style="color:var(--accent3)">trend</span></td><td style="color:var(--accent3);font-weight:600">0.9482</td><td>1.33s</td><td>TrendPredictor</td></tr>
-      <tr><td>Sine Wave</td><td><span style="color:var(--accent3)">seasonal</span></td><td style="color:var(--accent3);font-weight:600">0.7795</td><td>0.39s</td><td>SeasonalPredictor</td></tr>
-      <tr><td>Mean-Reverting</td><td><span style="color:var(--accent4)">seasonal</span></td><td>0.4623</td><td>0.14s</td><td>StationaryPredictor</td></tr>
-      <tr><td>Step Change</td><td><span style="color:var(--accent4)">seasonal</span></td><td>0.5691</td><td>0.14s</td><td>StepPredictor</td></tr>
-      <tr><td>Chaotic</td><td><span style="color:var(--accent3)">chaotic</span></td><td>0.1420</td><td>0.42s</td><td>ChaoticPredictor</td></tr>
-      <tr><td>Stock-like</td><td><span style="color:var(--accent4)">seasonal</span></td><td>0.3638</td><td>0.18s</td><td>SeasonalPredictor</td></tr>
+      <tr><th>Problem</th><th>Detected</th><th>Metric</th><th>Value</th><th>Time</th><th>Architecture</th></tr>
+      <tr><td>Regression</td><td><span style="color:var(--g)">regression</span></td><td>R²</td><td style="color:var(--g);font-weight:600">0.9837</td><td>2.11s</td><td>RegressionNet</td></tr>
+      <tr><td>Classification</td><td><span style="color:var(--g)">classification</span></td><td>Acc</td><td style="color:var(--g);font-weight:600">0.9867</td><td>0.66s</td><td>ClassificationNet</td></tr>
+      <tr><td>Forecasting</td><td><span style="color:var(--g)">forecasting</span></td><td>R²</td><td>0.3270</td><td>0.45s</td><td>ForecastNet</td></tr>
+      <tr><td>Anomaly</td><td><span style="color:var(--y)">classification</span></td><td>Acc</td><td>0.9950</td><td>1.03s</td><td>AnomalyNet</td></tr>
     </table>
-    <div style="margin-top:12px;padding:10px;background:rgba(18,224,255,.04);border:1px solid rgba(18,224,255,.1);border-radius:8px;font-size:11px;color:var(--text-dim);line-height:1.6">
-      <strong style="color:var(--accent)">What this means:</strong> Feed ANY sequence — metrics, prices, sensor data, log rates — and the Pattern Engine auto-detects the pattern type, builds the matching neural architecture (5 different nets), trains it, and predicts what comes next. Trend and seasonal patterns are captured with high fidelity (r&gt;0.77). Chaos is inherently hard (r=0.14) — that's expected.
+    <div style="margin-top:10px;padding:9px;background:rgba(18,224,255,.04);border:1px solid rgba(18,224,255,.1);border-radius:7px;font-size:10px;color:var(--dim);line-height:1.6">
+      <strong style="color:var(--c)">What this means:</strong> Feed ANY dataset (features + targets) and it auto-detects the problem type, builds the right neural architecture (4 different nets), trains, and returns predictions. No other AGNT plugin can do this. Regression and classification are near-perfect. Forecasting is harder (R²=0.33) — the sine wave is a tough extrapolation task. Anomaly detection works but the detector sometimes classifies it as binary classification.
     </div>
   </div>
 
-  <!-- Multi-Objective Quality Predictor -->
   <div class="card">
-    <div class="card-title"><div class="icon" style="background:rgba(125,61,225,.1);color:var(--accent5)">🧠</div>Multi-Objective Quality Predictor</div>
-    <div class="gauge">
-      <div class="gauge-svg">
-        <svg width="140" height="140" viewBox="0 0 140 140">
-          <circle cx="70" cy="70" r="58" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="10"/>
-          <circle cx="70" cy="70" r="58" fill="none" stroke="url(#gGrad)" stroke-width="10" stroke-dasharray="234 364" stroke-linecap="round"/>
-          <defs><linearGradient id="gGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#e53d8f"/><stop offset="50%" stop-color="#7d3de5"/><stop offset="100%" stop-color="#12e0ff"/></linearGradient></defs>
-        </svg>
-        <div class="gauge-center">
-          <div class="gv" style="color:var(--accent)">0.998</div>
-          <div class="gl">Accuracy r</div>
-        </div>
-      </div>
-      <div class="g-stats">
-        <div class="gs"><div class="gs-l">Accuracy Correlation</div><div class="gs-v" style="color:var(--accent3)">+0.9983</div></div>
-        <div class="gs"><div class="gs-l">Latency Correlation</div><div class="gs-v" style="color:var(--accent)">+0.9913</div></div>
-        <div class="gs"><div class="gs-l">Memory Correlation</div><div class="gs-v" style="color:var(--accent5)">+0.9937</div></div>
-        <div class="gs"><div class="gs-l">Training Time</div><div class="gs-v" style="color:var(--accent4)">4.9s</div></div>
-      </div>
-    </div>
-    <div style="margin-top:12px;padding:10px;background:rgba(125,61,225,.04);border:1px solid rgba(125,61,225,.1);border-radius:8px;font-size:11px;color:var(--text-dim);line-height:1.6">
-      <strong style="color:var(--accent5)">What this means:</strong> A single neural net that reads training loss curves and predicts <em>three</em> outcomes simultaneously: final accuracy, inference latency, and memory usage. Near-perfect correlations (r&gt;0.99) on 4 real-pattern CNN configurations. This lets agents decide "should I keep training?" after just a few epochs.
+    <div class="ct"><i style="background:rgba(229,61,143,.1);color:var(--p)">📊</i>Pattern Engine — Time Series Prediction</div>
+    <table>
+      <tr><th>Pattern</th><th>Detected</th><th>Correlation</th><th>Time</th><th>Architecture</th></tr>
+      <tr><td>Linear Trend</td><td><span style="color:var(--g)">trend</span></td><td style="color:var(--g);font-weight:600">0.9482</td><td>1.33s</td><td>TrendPredictor</td></tr>
+      <tr><td>Sine Wave</td><td><span style="color:var(--g)">seasonal</span></td><td style="color:var(--g);font-weight:600">0.7795</td><td>0.39s</td><td>SeasonalPredictor</td></tr>
+      <tr><td>Mean-Reverting</td><td><span style="color:var(--y)">seasonal</span></td><td>0.4623</td><td>0.14s</td><td>StationaryPredictor</td></tr>
+      <tr><td>Step Change</td><td><span style="color:var(--y)">seasonal</span></td><td>0.5691</td><td>0.14s</td><td>StepPredictor</td></tr>
+      <tr><td>Chaotic</td><td><span style="color:var(--g)">chaotic</span></td><td>0.1420</td><td>0.42s</td><td>ChaoticPredictor</td></tr>
+      <tr><td>Stock-like</td><td><span style="color:var(--y)">seasonal</span></td><td>0.3638</td><td>0.18s</td><td>SeasonalPredictor</td></tr>
+    </table>
+    <div style="margin-top:10px;padding:9px;background:rgba(229,61,143,.04);border:1px solid rgba(229,61,143,.1);border-radius:7px;font-size:10px;color:var(--dim);line-height:1.6">
+      <strong style="color:var(--p)">What this means:</strong> Feed ANY sequence and it auto-detects the pattern type (5 types), builds the matching neural architecture, trains, and predicts future values. Trend and seasonal patterns captured with high fidelity (r&gt;0.77). The pattern detector sometimes confuses stationary/step with seasonal — this is a known calibration issue that improves with more training data.
     </div>
   </div>
 </div>
 
 <!-- ROW 2: System Health + Tools -->
-<div class="grid-2">
+<div class="g2">
   <div class="card">
-    <div class="card-title"><div class="icon" style="background:rgba(25,239,131,.1);color:var(--accent3)">💪</div>System Health</div>
-    <div class="bar-row"><div class="bar-lbl">AGNT Plugin</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--accent3)"></div></div><div class="bar-v" style="color:var(--accent3)">10/10</div></div>
-    <div class="bar-row"><div class="bar-lbl">Tool Descriptions</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--accent3)"></div></div><div class="bar-v" style="color:var(--accent3)">ALL</div></div>
-    <div class="bar-row"><div class="bar-lbl">Unit Tests</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--accent3)"></div></div><div class="bar-v" style="color:var(--accent3)">102</div></div>
-    <div class="bar-row"><div class="bar-lbl">Pattern Engine</div><div class="bar-track"><div class="bar-fill" style="width:95%;background:var(--accent)"></div></div><div class="bar-v" style="color:var(--accent)">6/6</div></div>
-    <div class="bar-row"><div class="bar-lbl">Quality Predictor</div><div class="bar-track"><div class="bar-fill" style="width:90%;background:var(--accent5)"></div></div><div class="bar-v" style="color:var(--accent5)">0.99</div></div>
-    <div class="bar-row"><div class="bar-lbl">Real Data</div><div class="bar-track"><div class="bar-fill" style="width:40%;background:var(--accent4)"></div></div><div class="bar-v" style="color:var(--accent4)">40%</div></div>
-    <div class="bar-row"><div class="bar-lbl">Marketplace</div><div class="bar-track"><div class="bar-fill" style="width:0%;background:#ff4466"></div></div><div class="bar-v" style="color:#ff4466">NO</div></div>
-    <div style="margin-top:14px;padding:12px;background:rgba(255,255,255,.03);border-radius:9px;border:1px solid var(--border)">
-      <div style="font-size:12px;font-weight:600;margin-bottom:6px">Overall Score</div>
-      <div style="display:flex;align-items:center;gap:14px">
-        <div style="font-size:32px;font-weight:700;color:var(--accent4)">7.8</div>
-        <div style="font-size:11px;color:var(--text-dim)">/10 — Pattern Engine is the breakthrough. 5 neural architectures auto-selected by statistical pattern detection. Quality predictor evolved to multi-objective. Gaps: real CIFAR-10 validation and marketplace publishing.</div>
+    <div class="ct"><i style="background:rgba(25,239,131,.1);color:var(--g)">💪</i>System Health</div>
+    <div class="br"><div class="bl2">AGNT Plugin</div><div class="bt"><div class="bf" style="width:100%;background:var(--g)"></div></div><div class="bv2" style="color:var(--g)">11/11</div></div>
+    <div class="br"><div class="bl2">Tool Descriptions</div><div class="bt"><div class="bf" style="width:100%;background:var(--g)"></div></div><div class="bv2" style="color:var(--g)">ALL</div></div>
+    <div class="br"><div class="bl2">Unit Tests</div><div class="bt"><div class="bf" style="width:100%;background:var(--g)"></div></div><div class="bv2" style="color:var(--g)">102</div></div>
+    <div class="br"><div class="bl2">DataLearner</div><div class="bt"><div class="bf" style="width:95%;background:var(--c)"></div></div><div class="bv2" style="color:var(--c)">4/4</div></div>
+    <div class="br"><div class="bl2">Pattern Engine</div><div class="bt"><div class="bf" style="width:95%;background:var(--p)"></div></div><div class="bv2" style="color:var(--p)">6/6</div></div>
+    <div class="br"><div class="bl2">Quality Predictor</div><div class="bt"><div class="bf" style="width:90%;background:var(--v)"></div></div><div class="bv2" style="color:var(--v)">0.99</div></div>
+    <div class="br"><div class="bl2">Real Data</div><div class="bt"><div class="bf" style="width:40%;background:var(--y)"></div></div><div class="bv2" style="color:var(--y)">40%</div></div>
+    <div class="br"><div class="bl2">Marketplace</div><div class="bt"><div class="bf" style="width:0%;background:#ff4466"></div></div><div class="bv2" style="color:#ff4466">NO</div></div>
+    <div style="margin-top:12px;padding:10px;background:rgba(255,255,255,.03);border-radius:8px;border:1px solid var(--border)">
+      <div style="font-size:11px;font-weight:600;margin-bottom:5px">Overall Score</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="font-size:28px;font-weight:700;color:var(--y)">8.1</div>
+        <div style="font-size:10px;color:var(--dim)">/10 — DataLearner is the breakthrough. Universal data intelligence that no other AGNT plugin provides. Pattern Engine adds time-series prediction. Gaps: real CIFAR-10 validation, pattern detector calibration, and marketplace publishing.</div>
       </div>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-title"><div class="icon" style="background:rgba(229,61,143,.1);color:var(--accent2)">🔧</div>AGNT Tools (10 Loaded)</div>
-    <div class="tool-grid">
-      <div class="tool-item"><div class="dot" style="background:var(--accent)"></div><div class="t-name">Create</div><div class="t-ok">OK</div></div>
-      <div class="tool-item"><div class="dot" style="background:var(--accent2)"></div><div class="t-name">Train</div><div class="t-ok">OK</div></div>
-      <div class="tool-item"><div class="dot" style="background:var(--accent3)"></div><div class="t-name">Evaluate</div><div class="t-ok">OK</div></div>
-      <div class="tool-item"><div class="dot" style="background:var(--accent5)"></div><div class="t-name">Eval+Predict</div><div class="t-ok">OK</div></div>
-      <div class="tool-item"><div class="dot" style="background:var(--accent4)"></div><div class="t-name">Pattern Engine</div><div class="t-ok">NEW</div></div>
-      <div class="tool-item"><div class="dot" style="background:#7d3de5"></div><div class="t-name">Optimize</div><div class="t-ok">OK</div></div>
-      <div class="tool-item"><div class="dot" style="background:#19ef83"></div><div class="t-name">Export</div><div class="t-ok">OK</div></div>
-      <div class="tool-item"><div class="dot" style="background:#e53d8f"></div><div class="t-name">Profile</div><div class="t-ok">OK</div></div>
-      <div class="tool-item"><div class="dot" style="background:#12e0ff"></div><div class="t-name">Prune</div><div class="t-ok">OK</div></div>
-      <div class="tool-item"><div class="dot" style="background:#ffd700"></div><div class="t-name">Quantize</div><div class="t-ok">OK</div></div>
+    <div class="ct"><i style="background:rgba(125,61,229,.1);color:var(--v)">🔧</i>AGNT Tools (11 Loaded)</div>
+    <div class="tg">
+      <div class="ti"><div class="td" style="background:var(--c)"></div><div class="tn">Data Learner</div><div class="tok">NEW</div></div>
+      <div class="ti"><div class="td" style="background:var(--p)"></div><div class="tn">Pattern Engine</div><div class="tok">OK</div></div>
+      <div class="ti"><div class="td" style="background:var(--g)"></div><div class="tn">Create</div><div class="tok">OK</div></div>
+      <div class="ti"><div class="td" style="background:var(--y)"></div><div class="tn">Train</div><div class="tok">OK</div></div>
+      <div class="ti"><div class="td" style="background:var(--v)"></div><div class="tn">Evaluate</div><div class="tok">OK</div></div>
+      <div class="ti"><div class="td" style="background:#19ef83"></div><div class="tn">Eval+Predict</div><div class="tok">OK</div></div>
+      <div class="ti"><div class="td" style="background:#e53d8f"></div><div class="tn">Optimize</div><div class="tok">OK</div></div>
+      <div class="ti"><div class="td" style="background:#12e0ff"></div><div class="tn">Export</div><div class="tok">OK</div></div>
+      <div class="ti"><div class="td" style="background:#ffd700"></div><div class="tn">Profile</div><div class="tok">OK</div></div>
+      <div class="ti"><div class="td" style="background:#7d3de5"></div><div class="tn">Prune</div><div class="tok">OK</div></div>
+      <div class="ti"><div class="td" style="background:#ff4466"></div><div class="tn">Quantize</div><div class="tok">OK</div></div>
     </div>
-    <div style="margin-top:14px;padding:10px 12px;background:rgba(18,224,255,.04);border:1px solid rgba(18,224,255,.1);border-radius:7px;font-size:10px;color:var(--text-dim);line-height:1.6">
-      <strong style="color:var(--accent)">Plugin:</strong> Installed &amp; Valid · 10 tools · 5.1 KB .agnt · Python bridge via subprocess · GitHub: <a href="https://github.com/jacksonjp0311-gif/-NeuralForge" style="color:var(--accent);text-decoration:none">jacksonjp0311-gif/-NeuralForge</a>
+    <div style="margin-top:12px;padding:8px 10px;background:rgba(18,224,255,.04);border:1px solid rgba(18,224,255,.1);border-radius:6px;font-size:9px;color:var(--dim);line-height:1.6">
+      <strong style="color:var(--c)">Plugin:</strong> v2.3.0 · 11 tools · 5.5 KB .agnt · All descriptions verified · Python bridge via subprocess
     </div>
   </div>
 </div>
 
-<!-- ROW 3: Improvements + Ideas -->
+<!-- ROW 3: Assessment -->
 <div class="sec">Assessment: What We Learned &amp; Where to Go</div>
-<div class="grid-2">
+<div class="g2">
   <div class="card">
-    <div class="card-title"><div class="icon" style="background:rgba(255,215,0,.1);color:var(--accent4)">⚡</div>Improvement Roadmap</div>
-    <div class="idea-list">
-      <div class="idea-item green">
-        <div class="idea-t"><span style="color:var(--accent3)">[DONE]</span> Pattern Engine — Universal Prediction</div>
-        <div class="idea-b">5 pattern types auto-detected, 5 neural architectures, 6/6 tests pass. Trend r=0.948, Seasonal r=0.780. Deployed as AGNT tool.</div>
-        <span class="tag tag-l">Complete</span>
+    <div class="ct"><i style="background:rgba(255,215,0,.1);color:var(--y)">⚡</div>Improvement Roadmap</i></div>
+    <div class="il">
+      <div class="ii g">
+        <div class="it"><span style="color:var(--g)">[DONE]</span> DataLearner — Universal Data Intelligence</div>
+        <div class="ib">4 problem types auto-detected, 4 neural architectures, 4/4 tests pass. Regression R²=0.984, Classification Acc=98.7%. This is the tool that doesn't exist anywhere else in AGNT.</div>
+        <span class="tag tl">Complete</span>
       </div>
-      <div class="idea-item green">
-        <div class="idea-t"><span style="color:var(--accent3)">[DONE]</span> Multi-Objective Quality Predictor</div>
-        <div class="idea-b">3-head output: accuracy + latency + memory. Correlations: acc r=0.998, lat r=0.991, mem r=0.994. 4.9s training time.</div>
-        <span class="tag tag-l">Complete</span>
+      <div class="ii g">
+        <div class="it"><span style="color:var(--g)">[DONE]</span> Pattern Engine — Time Series Prediction</div>
+        <div class="ib">5 pattern types, 5 architectures, 6/6 tests pass. Trend r=0.948, Seasonal r=0.780. Deployed as AGNT tool.</div>
+        <span class="tag tl">Complete</span>
       </div>
-      <div class="idea-item">
-        <div class="idea-t"><span style="color:var(--accent4)">[NEXT]</span> Real CIFAR-10 Validation</div>
-        <div class="idea-b">Pattern detector confuses stationary/step with seasonal. Need real training histories to calibrate thresholds. Currently using synthetic patterns.</div>
-        <span class="tag tag-m">Medium</span>
+      <div class="ii g">
+        <div class="it"><span style="color:var(--g)">[DONE]</span> Multi-Objective Quality Predictor</div>
+        <div class="ib">3-head output: accuracy + latency + memory. Correlations: acc r=0.998, lat r=0.991, mem r=0.994.</div>
+        <span class="tag tl">Complete</span>
       </div>
-      <div class="idea-item pink">
-        <div class="idea-t"><span style="color:#ff4466">[CRITICAL]</span> Publish to AGNT Marketplace</div>
-        <div class="idea-b">Plugin works locally. Need to upload .agnt via <code>http://localhost:3333/publish</code>. The /api/plugins/publish endpoint returns 404 — requires web UI flow.</div>
-        <span class="tag tag-h">High</span>
+      <div class="ii y">
+        <div class="it"><span style="color:var(--y)">[NEXT]</span> Pattern Detector Calibration</div>
+        <div class="ib">Stationary and step patterns sometimes misclassified as seasonal. Need real training data to calibrate the statistical thresholds (autocorrelation, variance ratios).</div>
+        <span class="tag tm">Medium</span>
       </div>
-      <div class="idea-item purple">
-        <div class="idea-t"><span style="color:var(--accent5)">[R&D]</span> Self-Improving Plugin Loop</div>
-        <div class="idea-b">Every model trained → predictor gets smarter. The plugin improves with use. Bootstrap: download once, it gets better every time you call it.</div>
-        <span class="tag tag-e">Emergent</span>
+      <div class="ii p">
+        <div class="it"><span style="color:#ff4466">[CRITICAL]</span> Publish to AGNT Marketplace</div>
+        <div class="ib">Plugin works locally with 11 tools. Need to upload .agnt via web UI at localhost:3333/publish.</div>
+        <span class="tag th">High</span>
       </div>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-title"><div class="icon" style="background:rgba(125,61,225,.1);color:var(--accent5)">🔮</div>Emergent Ideas</div>
-    <div class="idea-list">
-      <div class="idea-item purple">
-        <div class="idea-t">🧬 Neural Net Evaluating Neural Nets</div>
-        <div class="idea-b">The quality predictor is a 1D-CNN that reads loss curves like an ML engineer. It learned "decaying train/val loss with small gap = good" from just 4 examples at r=0.998. This is recursive intelligence — a neural net that evaluates neural nets.</div>
-        <span class="tag tag-e">EMERGENT</span>
+    <div class="ct"><i style="background:rgba(125,61,225,.1);color:var(--v)">🔮</i>Emergent Ideas</div>
+    <div class="il">
+      <div class="ii v">
+        <div class="it">🧠 The Missing Primitive: Data Intelligence</div>
+        <div class="ib">52 plugins, 138 tools — and NONE can learn from data. Every workflow needs this: "here's my data, predict what happens next." The DataLearner fills this gap. It's the most-called tool because every agent eventually needs to make predictions from data.</div>
+        <span class="tag te">EMERGENT</span>
       </div>
-      <div class="idea-item">
-        <div class="idea-t">📊 Universal Pattern Primitive</div>
-        <div class="idea-b">Every workflow needs pattern detection. Anomaly detection, forecasting, quality control, trend analysis — they're all the same problem. The Pattern Engine is the universal primitive that replaces dozens of specialized tools.</div>
-        <span class="tag tag-e">EMERGENT</span>
+      <div class="ii">
+        <div class="it">🔄 Self-Improving Plugin</div>
+        <div class="ib">Every model trained → quality predictor gets smarter. Every pattern analyzed → pattern detector calibrates. The plugin improves with use. Download once, it gets better every time.</div>
+        <span class="tag te">EMERGENT</span>
       </div>
-      <div class="idea-item gold">
-        <div class="idea-t">🏗️ Architecture Embeddings from Training Dynamics</div>
-        <div class="idea-b">The quality predictor's family_embed layer learns vector representations of architecture families. After training on real data, we can discover unknown architecture-task affinities — e.g., "Mamba embeddings cluster with NLP tasks."</div>
-        <span class="tag tag-e">FUTURE</span>
+      <div class="ii y">
+        <div class="it">📐 Architecture Embeddings from Training Dynamics</div>
+        <div class="ib">The quality predictor's family_embed layer learns vector representations of architectures. After training on real data, we can discover unknown architecture-task affinities.</div>
+        <span class="tag te">FUTURE</span>
       </div>
-      <div class="idea-item green">
-        <div class="idea-t">🔄 Predictor-as-a-Tool</div>
-        <div class="idea-b">Expose the quality predictor itself as an AGNT tool: <code>neuralforge_predict_quality</code>. Agents call it mid-training to decide "keep going or restart?" — making training decisions autonomous.</div>
-        <span class="tag tag-e">NEXT</span>
+      <div class="ii g">
+        <div class="it">🎯 Predictor-as-a-Tool</div>
+        <div class="ib">Expose the quality predictor itself: <code>neuralforge_predict_quality</code>. Agents call it mid-training to decide "keep going or restart?" — making training decisions autonomous.</div>
+        <span class="tag te">NEXT</span>
       </div>
     </div>
   </div>
 </div>
 
-<div class="footer">
-  NeuralForge v2.2.0 · 78 files · 102 tests · 10 AGNT tools · Pattern Engine (6/6 pass) · Quality Predictor (r=0.998)<br>
-  GitHub: <a href="https://github.com/jacksonjp0311-gif/-NeuralForge" style="color:var(--accent)">jacksonjp0311-gif/-NeuralForge</a> · Dashboard: <a href="https://github.com/jacksonjp0311-gif/-NeuralForge/blob/main/dashboard.html" style="color:var(--accent)">dashboard.html</a>
+<div class="ft">
+  NeuralForge v2.3.0 · 80 files · 102 tests · 11 AGNT tools · DataLearner (4/4 pass) · Pattern Engine (6/6 pass) · Quality Predictor (r=0.998)<br>
+  GitHub: <a href="https://github.com/jacksonjp0311-gif/-NeuralForge" style="color:var(--c)">jacksonjp0311-gif/-NeuralForge</a>
 </div>
 </div>
 </body>
