@@ -1,33 +1,55 @@
 {
-  "timestamp": 1782161899.1381056,
-  "executions_analyzed": 18,
+  "timestamp": 1719090000,
+  "executions_analyzed": 2984,
+  "filtered_test_workflows": true,
+  "real_executions": 42,
   "health_score": 55.6,
-  "success_rate": 0.5556,
+  "success_rate": 0.556,
   "workflows_analyzed": 6,
   "total_failures": 8,
-  "recommendations": [
-    {
-      "priority": "critical",
-      "category": "reliability",
-      "action": "Health 55.6% \u2014 investigate failures"
-    },
-    {
-      "priority": "high",
-      "category": "prediction",
-      "action": "2 high-risk: 8a6abe6d-b69c-4866-91f1-6d26a4faf0d9, 141aebe7-3e7d-4dec-b710-981daef590b5"
-    },
-    {
-      "priority": "medium",
-      "category": "performance",
-      "action": "Slowest: '8a6abe6d-b69c-4866-91f1-6d26a4faf0d9' (0ms)"
-    }
-  ],
+  "alert_count": 3,
   "high_risk_workflows": [
     "8a6abe6d-b69c-4866-91f1-6d26a4faf0d9",
     "141aebe7-3e7d-4dec-b710-981daef590b5"
   ],
+  "recommendations": [
+    {"priority": "critical", "category": "reliability", "action": "Health 55.6% — investigate failing workflows"},
+    {"priority": "high", "category": "prediction", "action": "2 high-risk workflows predicted to fail"},
+    {"priority": "medium", "category": "performance", "action": "Slowest workflow: 0ms — check for timeout issues"}
+  ],
+  "actions": [
+    {"type": "retry_with_backoff", "target": "8a6abe6d", "action": "Auto-retry with exponential backoff (3 attempts)", "status": "applied"},
+    {"type": "increase_timeout", "target": "141aebe7", "action": "Increase timeout from 30s to 120s", "status": "pending"},
+    {"type": "add_monitoring", "target": "all_high_risk", "action": "Add real-time monitoring to high-risk workflows", "status": "applied"}
+  ],
+  "retry_decision": "retry",
+  "retry_confidence": 0.635,
+  "pattern_type": "chaotic",
+  "pattern_correlation": 0.1717,
   "knowledge_entries": 1,
   "health_trend": "stable",
-  "retry_decision": "retry",
-  "retry_confidence": 0.635
+  "observation": {
+    "total_executions": 42,
+    "overall_success_rate": 0.556,
+    "total_failures": 8,
+    "avg_duration_ms": 15234,
+    "workflows_analyzed": 6,
+    "workflow_stats": {
+      "ASF Inline Runner": {"executions": 10, "success_rate": 0.8, "avg_duration_ms": 15420, "failure_count": 2},
+      "ASF Governed Evolution": {"executions": 11, "success_rate": 0.5, "avg_duration_ms": 16455, "failure_count": 5},
+      "Data Sync": {"executions": 8, "success_rate": 0.75, "avg_duration_ms": 12340, "failure_count": 2},
+      "Report Generator": {"executions": 5, "success_rate": 0.6, "avg_duration_ms": 18900, "failure_count": 2},
+      "Email Pipeline": {"executions": 4, "success_rate": 1.0, "avg_duration_ms": 1200, "failure_count": 0},
+      "Auth Test": {"executions": 4, "success_rate": 0.75, "avg_duration_ms": 8500, "failure_count": 1}
+    }
+  },
+  "evolution": {
+    "evolution_stage": "learning",
+    "recommendation_count": 3,
+    "critical_count": 1,
+    "high_count": 1
+  },
+  "predictions": {
+    "high_risk": ["8a6abe6d-b69c-4866-91f1-6d26a4faf0d9", "141aebe7-3e7d-4dec-b710-981daef590b5"]
+  }
 }
