@@ -31,3 +31,8 @@
 - 102 passing tests
 - Clean error messages for agent consumption
 - Reproducible with seed control
+
+## v2.2.0 — 2026-06-22
+- Pattern Engine: universal pattern detection & prediction tool
+- 10 AGNT marketplace tools
+- Multi-objective quality predictor (acc/latency/memory)
