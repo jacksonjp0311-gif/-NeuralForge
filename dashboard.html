@@ -3,230 +3,158 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>NeuralForge v2.3 — Live Test Dashboard</title>
+<title>NeuralForge v2.5 — AGNT Evolution Dashboard</title>
 <style>
-:root{--bg:#0a0a1a;--bg2:#111128;--bd:rgba(255,255,255,.08);--t:#e0e0e0;--d:#7777aa;--c:#12e0ff;--p:#e53d8f;--g:#19ef83;--y:#ffd700;--v:#7d3de5;--r:#ff4466}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--t);overflow-x:hidden;font-size:13px;line-height:1.5}
+:root{--bg:#0a0a1a;--bg2:#111128;--bd:rgba(255,255,255,.08);--t:#e0e0e0;--d:#777;--c:#12e0ff;--p:#e53d8f;--g:#19ef83;--y:#ffd700;--v:#7d3de5;--r:#ff4466}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--t);line-height:1.6}
 body::before{content:'';position:fixed;inset:0;background:linear-gradient(rgba(18,224,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(18,224,255,.02) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
-.w{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:16px 20px}
-.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;padding:14px 20px;background:var(--bg2);border:1px solid var(--bd);border-radius:12px;box-shadow:0 0 24px rgba(18,224,255,.06)}
-.lg{width:38px;height:38px;background:linear-gradient(135deg,var(--p),var(--v));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;margin-right:12px}
-h1{font-size:17px;font-weight:700}h1 s{color:var(--c)}.sub{font-size:10px;color:var(--d);margin-top:1px}
-.bg{display:flex;gap:6px}
-.b{padding:3px 9px;border-radius:12px;font-size:9px;font-weight:700;letter-spacing:.4px;text-transform:uppercase}
-.bl{background:rgba(25,239,131,.15);color:var(--g);border:1px solid rgba(25,239,131,.3)}
-.bv{background:rgba(18,224,255,.1);color:var(--c);border:1px solid rgba(18,224,255,.2)}
-.r{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}
-.k{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:12px 14px}
-.kl{font-size:8px;text-transform:uppercase;letter-spacing:.7px;color:var(--d);margin-bottom:4px}
-.kv{font-size:19px;font-weight:700;letter-spacing:-.4px}
-.ks{font-size:9px;color:var(--d);margin-top:2px}
-.c .kv{color:var(--c)}.g .kv{color:var(--g)}.p .kv{color:var(--p)}.y .kv{color:var(--y)}.v .kv{color:var(--v)}.r2 .kv{color:var(--r)}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
-.card{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:14px}
-.ct{font-size:11px;font-weight:600;display:flex;align-items:center;gap:6px;margin-bottom:10px}
-.ct i{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px}
-.sec{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--d);margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid var(--bd)}
-.br{display:flex;align-items:center;gap:7px;margin-bottom:7px}
-.bl2{width:95px;font-size:9px;color:var(--d);flex-shrink:0}
-.bt{flex:1;height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
-.bf{height:100%;border-radius:3px}
-.bv2{width:46px;text-align:right;font-size:10px;font-weight:600;flex-shrink:0}
-table{width:100%;border-collapse:collapse;font-size:10px}
-th{text-align:left;padding:5px 7px;border-bottom:1px solid var(--bd);color:var(--d);font-size:8px;text-transform:uppercase;letter-spacing:.4px}
-td{padding:5px 7px;border-bottom:1px solid rgba(255,255,255,.03)}
-tr:hover td{background:rgba(255,255,255,.015)}
-.tag{display:inline-block;padding:1px 5px;border-radius:3px;font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:3px}
-.th{background:rgba(229,61,143,.15);color:var(--p)}.tm{background:rgba(255,215,0,.15);color:var(--y)}.tl{background:rgba(18,224,255,.1);color:var(--c)}.te{background:rgba(125,61,225,.15);color:var(--v)}
-.il{display:flex;flex-direction:column;gap:7px}
-.ii{padding:8px 10px;background:rgba(255,255,255,.02);border:1px solid var(--bd);border-radius:6px;border-left:3px solid var(--c)}
-.ii.p{border-left-color:var(--p)}.ii.g{border-left-color:var(--g)}.ii.y{border-left-color:var(--y)}.ii.v{border-left-color:var(--v)}
+.w{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:16px}
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding:14px 20px;background:var(--bg2);border:1px solid var(--bd);border-radius:12px}
+.lg{width:36px;height:36px;background:linear-gradient(135deg,var(--p),var(--v));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;margin-right:10px}
+h1{font-size:16px;font-weight:700}h1 s{color:var(--c)}.sub{font-size:10px;color:var(--d)}
+.r{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}
+.k{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:10px 12px}
+.kl{font-size:8px;text-transform:uppercase;letter-spacing:.6px;color:var(--d);margin-bottom:3px}
+.kv{font-size:18px;font-weight:700;letter-spacing:-.3px}
+.c .kv{color:var(--c)}.g .kv{color:var(--g)}.p .kv{color:var(--p)}.y .kv{color:var(--y)}.v .kv{color:var(--v)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:12px}
+.ct{font-size:11px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.ct i{width:20px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px}
+table{width:100%;border-collapse:collapse;font-size:9px}
+th{text-align:left;padding:4px 6px;border-bottom:1px solid var(--bd);color:var(--d);font-size:8px;text-transform:uppercase}
+td{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,.03)}
+.tag{display:inline-block;padding:1px 4px;border-radius:3px;font-size:7px;font-weight:700;text-transform:uppercase;margin-top:2px}
+.th{background:rgba(229,61,143,.15);color:var(--p)}.tm{background:rgba(255,215,0,.15);color:var(--y)}.tc{background:rgba(18,224,255,.1);color:var(--c)}
+.il{display:flex;flex-direction:column;gap:6px}
+.ii{padding:7px 9px;background:rgba(255,255,255,.02);border:1px solid var(--bd);border-radius:6px;border-left:3px solid var(--c)}
+.ii.g{border-left-color:var(--g)}.ii.y{border-left-color:var(--y)}.ii.r{border-left-color:var(--r)}
 .it{font-size:10px;font-weight:600;margin-bottom:2px}
-.ib{font-size:9px;color:var(--d);line-height:1.5}
-.gauge{display:flex;align-items:flex-start;justify-content:center;gap:20px;padding:6px 0}
-.gs{position:relative;width:110px;height:110px;flex-shrink:0}
+.ib{font-size:9px;color:var(--d)}
+.gauge{display:flex;align-items:center;gap:16px;padding:4px 0}
+.gs{position:relative;width:90px;height:90px;flex-shrink:0}
 .gc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.gv{font-size:22px;font-weight:700;letter-spacing:-1px}
-.gl{font-size:7px;color:var(--d);text-transform:uppercase;letter-spacing:.7px}
-.gstats{display:flex;flex-direction:column;gap:6px;flex:1}
-.gst{padding:7px 10px;background:rgba(255,255,255,.02);border:1px solid var(--bd);border-radius:6px}
-.gsl{font-size:8px;color:var(--d)}.gsv{font-size:13px;font-weight:700;margin-top:1px}
-.tg{display:grid;grid-template-columns:1fr 1fr;gap:5px}
-.ti{display:flex;align-items:center;gap:5px;padding:5px 8px;background:rgba(255,255,255,.02);border:1px solid var(--bd);border-radius:5px;font-size:9px}
-.td{width:5px;height:5px;border-radius:50%;flex-shrink:0}
-.tn{flex:1;font-weight:600}.tok{color:var(--g);font-size:8px}
-.conc{padding:10px;background:rgba(255,255,255,.02);border-radius:8px;border:1px solid var(--bd);margin-top:10px}
-.conc h3{font-size:11px;font-weight:700;margin-bottom:6px;color:var(--y)}
-.conc p,.conc li{font-size:9px;color:var(--d);line-height:1.7}
-.conc ul{padding-left:14px;margin:0}
-.ft{text-align:center;padding:12px;font-size:8px;color:var(--d);border-top:1px solid var(--bd);margin-top:4px}
-a{color:var(--c);text-decoration:none}
+.gv{font-size:18px;font-weight:700;letter-spacing:-.5px}
+.gl{font-size:7px;color:var(--d);text-transform:uppercase;letter-spacing:.5px}
+.sec{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--d);margin-top:12px;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--bd)}
+.stream{background:rgba(0,0,0,.3);border-radius:6px;padding:8px;max-height:200px;overflow-y:auto;font-family:'Courier New',monospace;font-size:8px;line-height:1.4;color:var(--g)}
+.stream .ts{color:var(--d)}.stream .msg{color:var(--t)}.stream .alert{color:var(--r)}.stream .ok{color:var(--g)}
 </style>
 </head>
 <body>
 <div class="w">
-<!-- HEADER -->
 <div class="hdr">
   <div style="display:flex;align-items:center">
     <div class="lg">NF</div>
-    <div><h1>NeuralForge <s>v2.3</s> — Live Test Dashboard</h1><div class="sub">All tests executed 2026-06-22 · Real metrics · 12 AGNT tools · 80 files on GitHub</div></div>
+    <div><h1>NeuralForge <s>v2.5</s> — AGNT Evolution Dashboard</h1>
+    <div class="sub">Real-time system health · 2,963 executions analyzed · 15 tools active</div></div>
   </div>
-  <div class="bg"><span class="b bv">v2.3.0</span><span class="b bl">● 12/12 TOOLS</span></div>
+  <div style="font-size:9px;color:var(--g)">● LIVE</div>
 </div>
 
-<!-- KPIs -->
 <div class="r">
-  <div class="k c"><div class="kl">Tests Passed</div><div class="kv">10/10</div><div class="ks">All core tests</div></div>
-  <div class="k g"><div class="kl">Regression R²</div><div class="kv">0.986</div><div class="ks">DataLearner · 1.70s</div></div>
-  <div class="k p"><div class="kl">Classification</div><div class="kv">98.7%</div><div class="ks">3-class · 0.54s</div></div>
-  <div class="k y"><div class="kl">Pattern Trend</div><div class="kv">0.92</div><div class="ks">r=0.922 · 1.31s</div></div>
-  <div class="k v"><div class="kl">Quality Pred</div><div class="kv">0.99</div><div class="ks">Memory r · 4.7s</div></div>
-  <div class="k r2"><div class="kl">Avg Train</div><div class="kv">0.83s</div><div class="ks">DataLearner avg</div></div>
+  <div class="k c"><div class="kl">Health Score</div><div class="kv" id="health">76.7%</div></div>
+  <div class="k g"><div class="kl">Tests Pass</div><div class="kv">10/10</div></div>
+  <div class="k p"><div class="kl">Pattern</div><div class="kv" id="pattern">chaotic</div></div>
+  <div class="k y"><div class="kl">Recs</div><div class="kv">3</div></div>
+  <div class="k v"><div class="kl">Tools</div><div class="kv">15</div></div>
 </div>
 
-<!-- ROW 1: DataLearner + Pattern Engine -->
 <div class="g2">
   <div class="card">
-    <div class="ct"><i style="background:rgba(18,224,255,.1);color:var(--c)">🧠</i>DataLearner — Live Results</div>
+    <div class="ct"><i style="background:rgba(18,224,255,.1);color:var(--c)">📊</i>System Overview</div>
     <table>
-      <tr><th>Problem</th><th>Detected</th><th>Metric</th><th>Value</th><th>Time</th><th>Architecture</th></tr>
-      <tr><td>Regression</td><td><span style="color:var(--g)">regression</span></td><td>R²</td><td style="color:var(--g);font-weight:700">0.9860</td><td>1.70s</td><td>RegressionNet</td></tr>
-      <tr><td>Classification</td><td><span style="color:var(--g)">classification</span></td><td>Acc</td><td style="color:var(--g);font-weight:700">98.67%</td><td>0.54s</td><td>ClassificationNet</td></tr>
-      <tr><td>Forecasting</td><td><span style="color:var(--g)">forecasting</span></td><td>R²</td><td>0.3118</td><td>0.38s</td><td>ForecastNet</td></tr>
-      <tr><td>Anomaly</td><td><span style="color:var(--g)">anomaly</span></td><td>Found</td><td style="color:var(--g);font-weight:700">6</td><td>0.68s</td><td>AnomalyNet</td></tr>
+      <tr><th>Workflow</th><th>Success</th><th>Avg Duration</th><th>Fails</th></tr>
+      <tr><td>LSS Audit (test)</td><td><span class="tag th">0%</span></td><td>603ms</td><td>2942</td></tr>
+      <tr><td>ASF Inline Runner</td><td><span class="tag tc">75%</span></td><td>15,420ms</td><td>1</td></tr>
+      <tr><td>ASF Governed Evo</td><td><span class="tag tm">50%</span></td><td>16,455ms</td><td>5</td></tr>
+      <tr><td>Data Sync</td><td><span class="tag th">0%</span></td><td>56,635ms</td><td>1</td></tr>
+      <tr><td>Report Gen</td><td><span class="tag tc">100%</span></td><td>49,584ms</td><td>0</td></tr>
     </table>
-    <div style="margin-top:8px;padding:7px;background:rgba(18,224,255,.04);border:1px solid rgba(18,224,255,.08);border-radius:5px;font-size:9px;color:var(--d);line-height:1.6">
-      <strong style="color:var(--c)">What this means:</strong> Feed ANY dataset → auto-detects problem type → builds the right neural net → trains → returns predictions. All 4 problem types correctly detected. Anomaly now uses Autoencoder (was ClassificationNet in v2.2). Forecasting correctly detected as "forecasting" (was "classification" in v2.2).
-    </div>
   </div>
 
   <div class="card">
-    <div class="ct"><i style="background:rgba(229,61,143,.1);color:var(--p)">📊</i>Pattern Engine — Live Results</div>
-    <table>
-      <tr><th>Input</th><th>Detected</th><th>Correlation</th><th>Time</th><th>Architecture</th></tr>
-      <tr><td>Linear Trend</td><td><span style="color:var(--g)">trend</span></td><td style="color:var(--g);font-weight:700">0.9222</td><td>1.31s</td><td>TrendPredictor</td></tr>
-      <tr><td>Sine Wave</td><td><span style="color:var(--g)">seasonal</span></td><td style="color:var(--g);font-weight:700">0.7851</td><td>0.13s</td><td>SeasonalPredictor</td></tr>
-      <tr><td>Mean-Reverting</td><td><span style="color:var(--y)">chaotic</span></td><td>0.6228</td><td>0.13s</td><td>ChaoticPredictor</td></tr>
-      <tr><td>Step Change</td><td><span style="color:var(--y)">chaotic</span></td><td>0.6367</td><td>0.12s</td><td>ChaoticPredictor</td></tr>
-      <tr><td>Chaotic</td><td><span style="color:var(--g)">chaotic</span></td><td>0.1680</td><td>0.30s</td><td>ChaoticPredictor</td></tr>
-      <tr><td>Stock-like</td><td><span style="color:var(--y)">chaotic</span></td><td>0.4312</td><td>0.15s</td><td>ChaoticPredictor</td></tr>
-    </table>
-    <div style="margin-top:8px;padding:7px;background:rgba(229,61,143,.04);border:1px solid rgba(229,61,143,.08);border-radius:5px;font-size:9px;color:var(--d);line-height:1.6">
-      <strong style="color:var(--p)">What this means:</strong> Feed ANY sequence → auto-detects pattern type → builds matching neural net → predicts future. Trend and seasonal correctly detected (r=0.92, 0.79). v2.3 fix: trend was misclassified as "seasonal" in v2.2 — now uses R² + slope significance. Stationary/step/stock classified as "chaotic" — acceptable for now.
+    <div class="ct"><i style="background:rgba(255,68,102,.1);color:var(--r)">⚠</i>Evolution Alerts</div>
+    <div class="il">
+      <div class="ii r"><div class="it">CRITICAL: Reliability</div><div class="ib">Health 0.4% — LSS Audit test workflow dominates metrics (2942/2963 executions)</div></div>
+      <div class="ii y"><div class="it">HIGH: Prediction</div><div class="ib">3 high-risk workflows identified — Data Sync, ASF Governed Evo, Report Gen</div></div>
+      <div class="ii"><div class="it">MEDIUM: Performance</div><div class="ib">Slowest workflow: Data Sync at 56,635ms — needs optimization</div></div>
     </div>
   </div>
 </div>
 
-<!-- ROW 2: Quality Predictor + System Health -->
 <div class="g2">
   <div class="card">
-    <div class="ct"><i style="background:rgba(125,61,225,.1);color:var(--v)">🎯</i>Multi-Objective Quality Predictor</div>
+    <div class="ct"><i style="background:rgba(125,61,225,.1);color:var(--v)">🧠</i>Smart Engine Decisions</div>
     <div class="gauge">
       <div class="gs">
-        <svg width="110" height="110" viewBox="0 0 110 110">
-          <circle cx="55" cy="55" r="46" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="8"/>
-          <circle cx="55" cy="55" r="46" fill="none" stroke="url(#qg)" stroke-width="8" stroke-dasharray="260 289" stroke-linecap="round"/>
+        <svg width="90" height="90" viewBox="0 0 90 90">
+          <circle cx="45" cy="45" r="38" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="7"/>
+          <circle cx="45" cy="45" r="38" fill="none" stroke="url(#qg)" stroke-width="7" stroke-dasharray="170 239" stroke-linecap="round"/>
           <defs><linearGradient id="qg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#e53d8f"/><stop offset="50%" stop-color="#7d3de5"/><stop offset="100%" stop-color="#12e0ff"/></linearGradient></defs>
         </svg>
-        <div class="gc"><div class="gv" style="color:var(--v)">0.99</div><div class="gl">Memory r</div></div>
+        <div class="gc"><div class="gv" style="color:var(--c)">0.61</div><div class="gl">Retry Conf</div></div>
       </div>
-      <div class="gstats">
-        <div class="gst"><div class="gsl">Accuracy Correlation</div><div class="gsv" style="color:var(--g)">+0.9997</div></div>
-        <div class="gst"><div class="gsl">Latency Correlation</div><div class="gsv" style="color:var(--y)">+0.9736</div></div>
-        <div class="gst"><div class="gsl">Memory Correlation</div><div class="gsv" style="color:var(--v)">+0.9929</div></div>
-        <div class="gst"><div class="gsl">Training Time</div><div class="gsv" style="color:var(--c)">4.7s</div></div>
+      <div style="flex:1">
+        <div style="font-size:9px;color:var(--d);margin-bottom:4px">Retry Decision</div>
+        <div style="font-size:11px;font-weight:600;color:var(--g)">RETRY</div>
+        <div style="font-size:9px;color:var(--d);margin-top:4px">Success Probability: 61%</div>
+        <div style="font-size:9px;color:var(--d)">Auto-detect: fix_unknown (conf=0.40)</div>
+        <div style="font-size:9px;color:var(--d)">Pattern: chaotic (corr=0.19)</div>
       </div>
-    </div>
-    <div style="padding:7px;background:rgba(125,61,225,.04);border:1px solid rgba(125,61,225,.08);border-radius:5px;font-size:9px;color:var(--d);line-height:1.6">
-      <strong style="color:var(--v)">What this means:</strong> Reads training loss curves → predicts accuracy, latency, and memory simultaneously. Near-perfect correlations (r>0.97) on 4 real-pattern CNN configurations. Memory is easiest to predict (parameter count dominates). This lets agents decide "should I keep training?" after just a few epochs.
     </div>
   </div>
 
   <div class="card">
-    <div class="ct"><i style="background:rgba(25,239,131,.1);color:var(--g)">💪</i>System Health</div>
-    <div class="br"><div class="bl2">Tests Passing</div><div class="bt"><div class="bf" style="width:100%;background:var(--g)"></div></div><div class="bv2" style="color:var(--g)">10/10</div></div>
-    <div class="br"><div class="bl2">DataLearner</div><div class="bt"><div class="bf" style="width:100%;background:var(--c)"></div></div><div class="bv2" style="color:var(--c)">4/4</div></div>
-    <div class="br"><div class="bl2">Pattern Engine</div><div class="bt"><div class="bf" style="width:100%;background:var(--p)"></div></div><div class="bv2" style="color:var(--p)">6/6</div></div>
-    <div class="br"><div class="bl2">Quality Pred</div><div class="bt"><div class="bf" style="width:97%;background:var(--v)"></div></div><div class="bv2" style="color:var(--v)">0.97</div></div>
-    <div class="br"><div class="bl2">AGNT Tools</div><div class="bt"><div class="bf" style="width:100%;background:var(--g)"></div></div><div class="bv2" style="color:var(--g)">12/12</div></div>
-    <div class="br"><div class="bl2">Marketplace</div><div class="bt"><div class="bf" style="width:0%;background:var(--r)"></div></div><div class="bv2" style="color:var(--r)">NO</div></div>
-    <div style="margin-top:10px;padding:8px;background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.08);border-radius:6px">
-      <div style="font-size:10px;font-weight:700;margin-bottom:4px;color:var(--y)">Overall Score: 8.3 / 10</div>
-      <div style="font-size:9px;color:var(--d);line-height:1.6">All core systems working. Pattern detector fixed. Anomaly detection fixed. 12 AGNT tools with full descriptions. Gaps: pattern detector calibration on real data, marketplace publishing.</div>
+    <div class="ct"><i style="background:rgba(25,239,131,.1);color:var(--g)">📈</i>Evolution Progress</div>
+    <div class="il">
+      <div class="ii g"><div class="it">✅ Failure Prediction</div><div class="ib">3 high-risk workflows identified before they run</div></div>
+      <div class="ii g"><div class="it">✅ Anomaly Detection</div><div class="ib">12 real-time alerts across 10 execution batches</div></div>
+      <div class="ii g"><div class="it">✅ Pattern Learning</div><div class="ib">5 pattern types detected with calibrated heuristics</div></div>
+      <div class="ii g"><div class="it">✅ Self-Healing</div><div class="ib">3 actionable recommendations generated</div></div>
+      <div class="ii"><div class="it">⏳ Marketplace</div><div class="ib">Plugin on marketplace (v1.0.0) — needs update to v2.5</div></div>
     </div>
   </div>
 </div>
 
-<!-- ROW 3: AGNT Tools + Conclusions -->
-<div class="sec">AGNT Tools (12 Loaded) &amp; Conclusions</div>
+<div class="sec">Live Evolution Stream</div>
+<div class="stream" id="stream">
+  <div><span class="ts">[20:37:15]</span> <span class="ok">✓</span> NeuralForge v2.5 initialized</div>
+  <div><span class="ts">[20:37:16]</span> <span class="ok">✓</span> Loaded 2,963 executions from AGNT</div>
+  <div><span class="ts">[20:37:16]</span> <span class="ok">✓</span> Evolution engine analysis complete (5.12s)</div>
+  <div><span class="ts">[20:37:16]</span> <span class="alert">⚠</span> LSS Audit: 2942 executions, 0% success (test workflow)</div>
+  <div><span class="ts">[20:37:16]</span> <span class="alert">⚠</span> Data Sync: duration spike detected (56,635ms)</div>
+  <div><span class="ts">[20:37:16]</span> <span class="ok">✓</span> 3 high-risk workflows identified</div>
+  <div><span class="ts">[20:37:16]</span> <span class="ok">✓</span> 3 evolution recommendations generated</div>
+  <div><span class="ts">[20:37:16]</span> <span class="ok">✓</span> Smart Engine: retry=retry (conf=0.61)</div>
+  <div><span class="ts">[20:37:16]</span> <span class="ok">✓</span> Pattern detector: trend r=0.89, seasonal r=0.79</div>
+  <div><span class="ts">[20:37:16]</span> <span class="ok">✓</span> All 15 AGNT tools operational</div>
+  <div><span class="ts">[20:37:16]</span> <span class="msg">→ Next: Filter test workflows from analysis</div>
+  <div><span class="ts">[20:37:16]</span> <span class="msg">→ Next: Update marketplace to v2.5</div>
+  <div><span class="ts">[20:37:16]</span> <span class="msg">→ Next: Build real-time execution hook</div>
+</div>
+
+<div class="sec">Next Priorities</div>
 <div class="g2">
   <div class="card">
-    <div class="ct"><i style="background:rgba(125,61,225,.1);color:var(--v)">🔧</i>AGNT Tools (12)</div>
-    <div class="tg">
-      <div class="ti"><div class="td" style="background:var(--c)"></div><div class="tn">Self-Test Suite</div><div class="tok">NEW</div></div>
-      <div class="ti"><div class="td" style="background:var(--p)"></div><div class="tn">Data Learner</div><div class="tok">OK</div></div>
-      <div class="ti"><div class="td" style="background:var(--g)"></div><div class="tn">Pattern Engine</div><div class="tok">OK</div></div>
-      <div class="ti"><div class="td" style="background:var(--y)"></div><div class="tn">Create</div><div class="tok">OK</div></div>
-      <div class="ti"><div class="td" style="background:var(--v)"></div><div class="tn">Train</div><div class="tok">OK</div></div>
-      <div class="ti"><div class="td" style="background:#19ef83"></div><div class="tn">Evaluate</div><div class="tok">OK</div></div>
-      <div class="ti"><div class="td" style="background:#e53d8f"></div><div class="tn">Eval+Predict</div><div class="tok">OK</div></div>
-      <div class="ti"><div class="td" style="background:#12e0ff"></div><div class="tn">Optimize</div><div class="tok">OK</div></div>
-      <div class="ti"><div class="td" style="background:#ffd700"></div><div class="tn">Export</div><div class="tok">OK</div></div>
-      <div class="ti"><div class="td" style="background:#7d3de5"></div><div class="tn">Profile</div><div class="tok">OK</div></div>
-      <div class="ti"><div class="td" style="background:#ff4466"></div><div class="tn">Prune</div><div class="tok">OK</div></div>
-      <div class="ti"><div class="td" style="background:#19ef83"></div><div class="tn">Quantize</div><div class="tok">OK</div></div>
-    </div>
-    <div style="margin-top:8px;padding:6px 8px;background:rgba(18,224,255,.04);border:1px solid rgba(18,224,255,.08);border-radius:5px;font-size:8px;color:var(--d);line-height:1.5">
-      <strong style="color:var(--c)">Plugin:</strong> v2.3.0 · 12 tools · 7.1 KB .agnt · All descriptions verified · Python bridge via subprocess · 52 plugins / 131 total tools in AGNT
+    <div class="ct"><i style="background:rgba(255,215,0,.1);color:var(--y)">⚡</i>Immediate</div>
+    <div class="il">
+      <div class="ii y"><div class="it">Filter Test Workflows</div><div class="ib">LSS Audit dominates metrics. Filter to see real workflow health.</div></div>
+      <div class="ii"><div class="it">Marketplace Update</div><div class="ib">Update published plugin from v1.0.0 to v2.5 with all 15 tools</div></div>
     </div>
   </div>
-
   <div class="card">
-    <div class="ct"><i style="background:rgba(255,215,0,.1);color:var(--y)">📋</i>Test Conclusions</div>
-    <div class="conc">
-      <h3>What We Measured (10/10 tests pass)</h3>
-      <ul>
-        <li><strong>DataLearner Regression R²=0.986</strong> — Near-perfect. The RegressionNet with BatchNorm learns linear relationships with 98.6% variance explained. 1.70s training.</li>
-        <li><strong>Classification 98.67%</strong> — 3-class 2D blobs are cleanly separable. ClassificationNet achieves near-perfect accuracy in 0.54s.</li>
-        <li><strong>Forecasting R²=0.312</strong> — Sine wave extrapolation is hard for LSTMs. The model learns local patterns but struggles with phase alignment. Correctly detected as "forecasting" (was "classification" in v2.2).</li>
-        <li><strong>Anomaly Detection: 6 found</strong> — Autoencoder correctly identifies outliers. Detected as "anomaly" (was "classification" in v2.2).</li>
-        <li><strong>Pattern Trend r=0.922</strong> — v2.3 fix works. Was misclassified as "seasonal" in v2.2. Now uses R² + slope significance.</li>
-        <li><strong>Pattern Seasonal r=0.785</strong> — 1D-CNN captures repeating patterns well. Sine wave is the ideal case.</li>
-        <li><strong>Quality Predictor: acc r=0.9997, lat r=0.974, mem r=0.993</strong> — Near-perfect multi-objective prediction from training dynamics.</li>
-      </ul>
+    <div class="ct"><i style="background:rgba(125,61,225,.1);color:var(--v)">🔮</i>Evolution</div>
+    <div class="il">
+      <div class="ii"><div class="it">Real-Time Hook</div><div class="ib">Auto-run evolution after every workflow execution</div></div>
+      <div class="ii"><div class="it">Dashboard Widget</div><div class="ib">Make this dashboard an AGNT widget for inline viewing</div></div>
     </div>
   </div>
 </div>
 
-<!-- ROW 4: Emergent Ideas -->
-<div class="sec">Emergent Ideas &amp; Next Steps</div>
-<div class="g2">
-  <div class="card">
-    <div class="ct"><i style="background:rgba(125,61,225,.1);color:var(--v)">🔮</i>Emergent Ideas</div>
-    <div class="il">
-      <div class="ii v"><div class="it">🧠 The Missing Primitive: Data Intelligence</div><div class="ib">52 plugins, 131 tools — NONE can learn from data. Every workflow needs "here's my data, predict what happens next." The DataLearner fills this gap.</div><span class="tag te">EMERGENT</span></div>
-      <div class="ii p"><div class="it">🔄 Self-Improving Plugin</div><div class="ib">Every model trained → quality predictor gets smarter. Every pattern analyzed → detector calibrates. Download once, improves with use.</div><span class="tag te">EMERGENT</span></div>
-      <div class="ii g"><div class="it">📐 Architecture Embeddings</div><div class="ib">The quality predictor's family_embed layer learns vector representations of architectures. Can discover unknown architecture-task affinities.</div><span class="tag te">FUTURE</span></div>
-      <div class="ii y"><div class="it">⚡ Model Capacity Matching</div><div class="ib">Full pipeline NaN loss reveals: model capacity must match data complexity. Future: auto-select model size from data characteristics.</div><span class="tag tl">LEARNING</span></div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="ct"><i style="background:rgba(229,61,143,.1);color:var(--p)">⚡</i>Next Steps</div>
-    <div class="il">
-      <div class="ii"><div class="it"><span style="color:var(--g)">[DONE]</span> Pattern detector v2.3 fix</div><div class="ib">Trend now correctly detected using R² + slope significance. Was over-classifying as seasonal.</div><span class="tag tl">Complete</span></div>
-      <div class="ii"><div class="it"><span style="color:var(--g)">[DONE]</span> Anomaly detection with Autoencoder</div><div class="ib">AnomalyNet (compress→reconstruct) replaces ClassificationNet. High reconstruction error = anomaly.</div><span class="tag tl">Complete</span></div>
-      <div class="ii"><div class="it"><span style="color:var(--g)">[DONE]</span> neuralforge_test AGNT tool</div><div class="ib">Self-test suite that runs all 10 tests and returns pass/fail with metrics. Continuously verifiable.</div><span class="tag tl">Complete</span></div>
-      <div class="ii p"><div class="it"><span style="color:var(--p)">[NEXT]</span> Pattern detector calibration</div><div class="ib">Stationary/step patterns misclassified as "chaotic." Need real training data to tune statistical thresholds.</div><span class="tag tm">Medium</span></div>
-      <div class="ii v"><div class="it"><span style="color:var(--r)">[CRITICAL]</span> Publish to AGNT Marketplace</div><div class="ib">Plugin works locally with 12 tools. Upload .agnt via web UI at localhost:3333/publish.</div><span class="tag th">High</span></div>
-    </div>
-  </div>
-</div>
-
-<div class="ft">
-  NeuralForge v2.3.0 · 80 files on GitHub · 102 unit tests · 10/10 live tests pass · 12 AGNT tools · 7.1 KB .agnt<br>
-  GitHub: <a href="https://github.com/jacksonjp0311-gif/-NeuralForge">jacksonjp0311-gif/-NeuralForge</a> · Dashboard: <a href="https://github.com/jacksonjp0311-gif/-NeuralForge/blob/main/dashboard.html">dashboard.html</a>
+<div style="text-align:center;padding:12px;font-size:8px;color:var(--d);border-top:1px solid var(--bd);margin-top:8px">
+  NeuralForge v2.5 · 15 AGNT tools · 89 files · https://github.com/jacksonjp0311-gif/-NeuralForge
 </div>
 </div>
 </body>
