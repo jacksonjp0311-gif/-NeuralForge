@@ -85,7 +85,10 @@ class EvolutionEngine:
             if len(exs) < 3: continue
             pred = self.smart.decide("predict", history=[{"success": e.get("success", True), "duration_ms": e.get("duration_ms", 0)} for e in exs])
             durations = [float(e.get("duration_ms", 0)) for e in exs]
-            analysis = self.analyzer.analyze([{"duration_ms": d, "success": e.get("success", True), "step_count": e.get("step_count", 5)} for d, e in zip(durations, exs)])
+            try:
+                analysis = self.analyzer.analyze([{"duration_ms": d, "success": e.get("success", True), "step_count": e.get("step_count", 5)} for d, e in zip(durations, exs)])
+            except Exception as ex:
+                analysis = {"prediction": {}, "trends": {}, "anomalies": {"count": 0}, "stats": {}}
             predictions[wid] = {"will_succeed": pred.get("decision", "unknown"), "confidence": pred.get("confidence", 0), "success_probability": pred.get("success_probability", 0), "risk_level": analysis.get("prediction", {}).get("risk_level", "unknown"), "trend": analysis.get("trends", {}).get("duration_trend", "unknown")}
         return {"workflow_predictions": predictions, "high_risk": [w for w, p in predictions.items() if p.get("risk_level") == "high" or p.get("will_succeed") == "will_fail"]}
 

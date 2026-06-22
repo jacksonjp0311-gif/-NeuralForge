@@ -159,7 +159,7 @@ class WorkflowAnalyzer:
                 "priority": "medium",
                 "message": "Duration is trending upward. Check for resource leaks or growing data.",
             })
-        if results["anomalies"]["count"] > 0:
+        if results.get("anomalies", {}).get("count", 0) > 0:
             recommendations.append({
                 "type": "anomaly",
                 "priority": "medium",
