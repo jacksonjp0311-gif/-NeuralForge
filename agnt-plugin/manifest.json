@@ -1,0 +1,325 @@
+{
+  "name": "neuralforge",
+  "displayName": "NeuralForge",
+  "version": "2.0.0",
+  "description": "Build, train, optimize, and deploy neural networks from natural language. Agent-native neural engineering platform with PyTorch backend. Supports 8+ architecture families, auto-architecture search, hyperparameter optimization, pruning, quantization, and distillation.",
+  "author": "jacksonjp0311-gif",
+  "icon": "brain",
+  "homepage": "https://github.com/jacksonjp0311-gif/-NeuralForge",
+  "repository": "https://github.com/jacksonjp0311-gif/-NeuralForge",
+  "license": "Apache-2.0",
+  "tools": [
+    {
+      "type": "neuralforge_create",
+      "entryPoint": "./tools/create.js",
+      "schema": {
+        "title": "Create Neural Network",
+        "description": "Create a neural network model from a natural language description. Parses architecture family (CNN, ResNet, Transformer, ViT, etc.), task type, and constraints like parameter count, memory, and accuracy targets.",
+        "category": "action",
+        "icon": "plus-circle",
+        "parameters": {
+          "description": {
+            "type": "string",
+            "inputType": "textarea",
+            "required": true,
+            "description": "Natural language model description. Examples: 'Build a ResNet for CIFAR-10 with <5M params', 'Vision transformer for medical image classification under 8GB VRAM', 'Transformer for sentiment analysis with >90% accuracy'"
+          }
+        },
+        "outputs": {
+          "status": { "type": "string", "description": "success or error" },
+          "model_name": { "type": "string", "description": "Generated model name" },
+          "parameters": { "type": "number", "description": "Total parameter count" },
+          "trainable_parameters": { "type": "number", "description": "Trainable parameter count" },
+          "architecture": { "type": "string", "description": "Architecture family (cnn, resnet, transformer, etc.)" },
+          "depth": { "type": "number", "description": "Network depth (layers)" },
+          "width": { "type": "number", "description": "Network width (channels)" },
+          "task_type": { "type": "string", "description": "Task type (image_classification, text_classification, etc.)" },
+          "config_hash": { "type": "string", "description": "Unique config hash" },
+          "error": { "type": "string", "description": "Error message if failed" }
+        }
+      }
+    },
+    {
+      "type": "neuralforge_train",
+      "entryPoint": "./tools/train.js",
+      "schema": {
+        "title": "Train Neural Network",
+        "description": "Train a neural network with production-grade settings including mixed precision (AMP), exponential moving average (EMA), learning rate scheduling, gradient accumulation, and early stopping.",
+        "category": "action",
+        "icon": "play",
+        "parameters": {
+          "description": {
+            "type": "string",
+            "inputType": "textarea",
+            "required": true,
+            "description": "Natural language model description"
+          },
+          "epochs": {
+            "type": "number",
+            "inputType": "number",
+            "required": false,
+            "default": 10,
+            "minimum": 1,
+            "maximum": 10000,
+            "description": "Number of training epochs"
+          },
+          "batch_size": {
+            "type": "number",
+            "inputType": "number",
+            "required": false,
+            "default": 32,
+            "minimum": 1,
+            "maximum": 1024,
+            "description": "Training batch size"
+          },
+          "learning_rate": {
+            "type": "number",
+            "inputType": "number",
+            "required": false,
+            "default": 0.001,
+            "description": "Learning rate"
+          },
+          "precision": {
+            "type": "string",
+            "inputType": "select",
+            "required": false,
+            "default": "mixed",
+            "options": ["fp32", "fp16", "bf16", "mixed"],
+            "description": "Training precision mode"
+          },
+          "seed": {
+            "type": "number",
+            "inputType": "number",
+            "required": false,
+            "default": 42,
+            "description": "Random seed for reproducibility"
+          }
+        },
+        "outputs": {
+          "status": { "type": "string", "description": "success or error" },
+          "epochs_completed": { "type": "number", "description": "Number of epochs actually completed" },
+          "final_loss": { "type": "number", "description": "Final training loss" },
+          "best_metric": { "type": "number", "description": "Best validation metric achieved" },
+          "best_epoch": { "type": "number", "description": "Epoch number of best metric" },
+          "training_time_seconds": { "type": "number", "description": "Total wall-clock training time" },
+          "status_flag": { "type": "string", "description": "completed or early_stopped" },
+          "error": { "type": "string", "description": "Error message if failed" }
+        }
+      }
+    },
+    {
+      "type": "neuralforge_optimize",
+      "entryPoint": "./tools/optimize.js",
+      "schema": {
+        "title": "Optimize Architecture",
+        "description": "Run hyperparameter and architecture optimization via evolutionary search. Finds the best architecture and training recipe for a given objective (accuracy, loss, latency, etc.).",
+        "category": "action",
+        "icon": "trending-up",
+        "parameters": {
+          "description": {
+            "type": "string",
+            "inputType": "textarea",
+            "required": true,
+            "description": "Natural language model description to optimize"
+          },
+          "objective": {
+            "type": "string",
+            "inputType": "select",
+            "required": false,
+            "default": "accuracy",
+            "options": ["accuracy", "loss", "latency", "parameters", "memory"],
+            "description": "Optimization objective"
+          },
+          "num_trials": {
+            "type": "number",
+            "inputType": "number",
+            "required": false,
+            "default": 10,
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of optimization trials"
+          }
+        },
+        "outputs": {
+          "status": { "type": "string", "description": "success or error" },
+          "best_score": { "type": "number", "description": "Best score achieved" },
+          "num_trials": { "type": "number", "description": "Number of trials completed" },
+          "best_architecture": { "type": "string", "description": "Best architecture family" },
+          "best_depth": { "type": "number", "description": "Best depth" },
+          "best_width": { "type": "number", "description": "Best width" },
+          "error": { "type": "string", "description": "Error message if failed" }
+        }
+      }
+    },
+    {
+      "type": "neuralforge_evaluate",
+      "entryPoint": "./tools/evaluate.js",
+      "schema": {
+        "title": "Evaluate Model",
+        "description": "Comprehensive model evaluation with accuracy, loss, macro-F1, per-class precision/recall, confusion matrix, Expected Calibration Error (ECE), failure analysis, and actionable improvement recommendations.",
+        "category": "action",
+        "icon": "bar-chart-2",
+        "parameters": {
+          "description": {
+            "type": "string",
+            "inputType": "textarea",
+            "required": true,
+            "description": "Natural language model description to evaluate"
+          }
+        },
+        "outputs": {
+          "status": { "type": "string", "description": "success or error" },
+          "metrics": { "type": "object", "description": "Evaluation metrics (accuracy, loss, macro-F1, num_samples)" },
+          "calibration_error": { "type": "number", "description": "Expected Calibration Error (ECE)" },
+          "recommendations": { "type": "array", "description": "Actionable improvement suggestions" },
+          "error": { "type": "string", "description": "Error message if failed" }
+        }
+      }
+    },
+    {
+      "type": "neuralforge_export",
+      "entryPoint": "./tools/export.js",
+      "schema": {
+        "title": "Export Model",
+        "description": "Export a trained model to deployment format. Supports PyTorch state_dict, TorchScript (traced), ONNX, and Safetensors.",
+        "category": "action",
+        "icon": "download",
+        "parameters": {
+          "description": {
+            "type": "string",
+            "inputType": "textarea",
+            "required": true,
+            "description": "Natural language model description to export"
+          },
+          "format": {
+            "type": "string",
+            "inputType": "select",
+            "required": false,
+            "default": "pytorch_state_dict",
+            "options": ["pytorch_state_dict", "torchscript", "onnx", "safetensors"],
+            "description": "Export format"
+          },
+          "output_path": {
+            "type": "string",
+            "inputType": "text",
+            "required": false,
+            "default": "./neuralforge_output",
+            "description": "Output directory path"
+          }
+        },
+        "outputs": {
+          "status": { "type": "string", "description": "success or error" },
+          "export_path": { "type": "string", "description": "Path to exported model file" },
+          "format": { "type": "string", "description": "Export format used" },
+          "error": { "type": "string", "description": "Error message if failed" }
+        }
+      }
+    },
+    {
+      "type": "neuralforge_profile",
+      "entryPoint": "./tools/profile.js",
+      "schema": {
+        "title": "Profile Model",
+        "description": "Profile a neural network model. Returns total parameters, trainable parameters, model size (MB), GPU memory usage, mean/p95 latency (ms), and throughput (samples/sec).",
+        "category": "action",
+        "icon": "activity",
+        "parameters": {
+          "description": {
+            "type": "string",
+            "inputType": "textarea",
+            "required": true,
+            "description": "Natural language model description to profile"
+          }
+        },
+        "outputs": {
+          "status": { "type": "string", "description": "success or error" },
+          "total_parameters": { "type": "number", "description": "Total parameter count" },
+          "trainable_parameters": { "type": "number", "description": "Trainable parameter count" },
+          "model_size_mb": { "type": "number", "description": "Model size in megabytes" },
+          "gpu_memory_mb": { "type": "number", "description": "GPU memory usage in MB" },
+          "latency_mean_ms": { "type": "number", "description": "Mean inference latency in ms" },
+          "latency_p95_ms": { "type": "number", "description": "95th percentile latency in ms" },
+          "throughput_samples_per_sec": { "type": "number", "description": "Inference throughput" },
+          "device": { "type": "string", "description": "Device used (cpu/cuda)" },
+          "error": { "type": "string", "description": "Error message if failed" }
+        }
+      }
+    },
+    {
+      "type": "neuralforge_prune",
+      "entryPoint": "./tools/prune.js",
+      "schema": {
+        "title": "Prune Model",
+        "description": "Prune a neural network model to reduce size and improve inference speed. Supports L1 unstructured pruning (global) and structured pruning. Returns sparsity percentage achieved.",
+        "category": "action",
+        "icon": "scissors",
+        "parameters": {
+          "description": {
+            "type": "string",
+            "inputType": "textarea",
+            "required": true,
+            "description": "Natural language model description to prune"
+          },
+          "amount": {
+            "type": "number",
+            "inputType": "number",
+            "required": false,
+            "default": 0.3,
+            "minimum": 0.0,
+            "maximum": 0.95,
+            "description": "Sparsity amount (0.0 to 0.95). E.g., 0.3 = 30% of weights pruned."
+          },
+          "method": {
+            "type": "string",
+            "inputType": "select",
+            "required": false,
+            "default": "unstructured_global",
+            "options": ["unstructured_global", "structured_l1", "structured_ln"],
+            "description": "Pruning method"
+          }
+        },
+        "outputs": {
+          "status": { "type": "string", "description": "success or error" },
+          "original_parameters": { "type": "number", "description": "Original parameter count" },
+          "sparsity": { "type": "number", "description": "Achieved sparsity ratio (0-1)" },
+          "sparsity_percent": { "type": "string", "description": "Human-readable sparsity percentage" },
+          "error": { "type": "string", "description": "Error message if failed" }
+        }
+      }
+    },
+    {
+      "type": "neuralforge_quantize",
+      "entryPoint": "./tools/quantize.js",
+      "schema": {
+        "title": "Quantize Model",
+        "description": "Quantize a neural network model for efficient deployment. Supports dynamic INT8 quantization (reduces model size ~4x). GPTQ, AWQ, and bitsandbytes available with optional packages.",
+        "category": "action",
+        "icon": "zap",
+        "parameters": {
+          "description": {
+            "type": "string",
+            "inputType": "textarea",
+            "required": true,
+            "description": "Natural language model description to quantize"
+          },
+          "method": {
+            "type": "string",
+            "inputType": "select",
+            "required": false,
+            "default": "dynamic_int8",
+            "options": ["dynamic_int8", "static_int8", "gptq", "awq", "bitsandbytes"],
+            "description": "Quantization method"
+          }
+        },
+        "outputs": {
+          "status": { "type": "string", "description": "success or error" },
+          "method": { "type": "string", "description": "Quantization method used" },
+          "original_size_mb": { "type": "number", "description": "Original model size in MB" },
+          "quantized_size_mb": { "type": "number", "description": "Quantized model size in MB" },
+          "compression_ratio": { "type": "string", "description": "Compression ratio achieved" },
+          "error": { "type": "string", "description": "Error message if failed" }
+        }
+      }
+    }
+  ]
+}

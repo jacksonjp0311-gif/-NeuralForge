@@ -1,0 +1,13 @@
+{
+  "name": "neuralforge-plugin",
+  "version": "2.0.0",
+  "description": "NeuralForge AGNT Plugin — Build, train, optimize, and deploy neural networks from natural language",
+  "type": "module",
+  "keywords": ["agnt", "plugin", "neural-networks", "pytorch", "deep-learning"],
+  "author": "jacksonjp0311-gif",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jacksonjp0311-gif/-NeuralForge"
+  }
+}
