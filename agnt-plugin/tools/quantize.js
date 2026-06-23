@@ -19,7 +19,7 @@ class NeuralForgeQuantizeTool {
 spec = NeuralForgeSpec.from_description("${escaped}")
 model = create_model(spec)
 original_size = sum(p.nelement() * p.element_size() for p in model.parameters()) / 1024 / 1024
-config = QuantizationConfig(method=QuantizationMethod.${method.upper()})
+config = QuantizationConfig(method=QuantizationMethod.${method.toUpperCase()})
 quantized = quantize_model(model, config)
 quantized_size = sum(p.nelement() * p.element_size() for p in quantized.parameters()) / 1024 / 1024
 output = {
