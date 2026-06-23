@@ -1,0 +1,157 @@
+[
+  {
+    "type": "neuralforge_smart_retry",
+    "name": "Smart Retry Predictor",
+    "description": "Predicts whether a failed tool call should be retried based on context (time of day, recent failures, retry count). Returns retry recommendation with confidence.",
+    "entryPoint": "./tools/smart_retry.js",
+    "schema": {
+      "parameters": {
+        "tool_name": {
+          "type": "string",
+          "required": true,
+          "description": "Name of the tool that failed"
+        },
+        "error_type": {
+          "type": "string",
+          "description": "Type of error encountered"
+        },
+        "retry_count": {
+          "type": "integer",
+          "default": 0,
+          "description": "Number of retries already attempted"
+        },
+        "recent_failure_rate": {
+          "type": "number",
+          "default": 0.0,
+          "description": "Recent failure rate (0-1)"
+        }
+      },
+      "outputs": {
+        "should_retry": {
+          "type": "boolean"
+        },
+        "confidence": {
+          "type": "number"
+        },
+        "recommended_delay_ms": {
+          "type": "integer"
+        },
+        "reasoning": {
+          "type": "array"
+        }
+      }
+    }
+  },
+  {
+    "type": "neuralforge_optimize_params",
+    "name": "Parameter Optimizer",
+    "description": "Predicts optimal parameters (timeout, retry count, backoff factor, batch size) for a tool call based on current context.",
+    "entryPoint": "./tools/optimize_params.js",
+    "schema": {
+      "parameters": {
+        "tool_name": {
+          "type": "string",
+          "required": true
+        },
+        "context_load": {
+          "type": "number",
+          "default": 0.5,
+          "description": "Current system load (0-1)"
+        },
+        "data_size": {
+          "type": "number",
+          "default": 1000,
+          "description": "Size of data being processed"
+        }
+      },
+      "outputs": {
+        "recommended_timeout_ms": {
+          "type": "integer"
+        },
+        "recommended_retries": {
+          "type": "integer"
+        },
+        "backoff_factor": {
+          "type": "number"
+        },
+        "predicted_quality": {
+          "type": "number"
+        }
+      }
+    }
+  },
+  {
+    "type": "neuralforge_predict_failure",
+    "name": "Failure Predictor",
+    "description": "Predicts the probability that a tool call will fail based on current system state, time, and recent error patterns.",
+    "entryPoint": "./tools/predict_failure.js",
+    "schema": {
+      "parameters": {
+        "tool_name": {
+          "type": "string",
+          "required": true
+        },
+        "system_load": {
+          "type": "number",
+          "default": 0.5
+        },
+        "recent_errors": {
+          "type": "integer",
+          "default": 0
+        },
+        "time_of_day": {
+          "type": "number",
+          "default": 12
+        }
+      },
+      "outputs": {
+        "failure_probability": {
+          "type": "number"
+        },
+        "risk_level": {
+          "type": "string"
+        },
+        "recommendations": {
+          "type": "array"
+        }
+      }
+    }
+  },
+  {
+    "type": "neuralforge_score_quality",
+    "name": "Response Quality Scorer",
+    "description": "Scores the quality of a tool response (0-1) based on response features like length, structure, timing, and error absence.",
+    "entryPoint": "./tools/score_quality.js",
+    "schema": {
+      "parameters": {
+        "response_length": {
+          "type": "integer",
+          "required": true
+        },
+        "has_structure": {
+          "type": "boolean",
+          "default": true
+        },
+        "response_time_ms": {
+          "type": "number",
+          "default": 1000
+        },
+        "has_errors": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "outputs": {
+        "quality_score": {
+          "type": "number"
+        },
+        "quality_label": {
+          "type": "string"
+        },
+        "improvement_suggestions": {
+          "type": "array"
+        }
+      }
+    }
+  }
+]
