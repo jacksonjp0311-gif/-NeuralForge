@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🔥 NeuralForge v2.4
+# 🔥 NeuralForge v2.5
 
 ### *Neural Networks. Forged by Agents.*
 
@@ -8,16 +8,12 @@
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue?style=flat-square&logo=python)](https://python.org)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.1%2B-ee4c2c?style=flat-square&logo=pytorch)](https://pytorch.org)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green?style=flat-square)](./pyproject.toml)
-[![AGNT](https://img.shields.io/badge/AGNT-15%20tools-purple?style=flat-square)](#-agnt-plugin)
+[![AGNT](https://img.shields.io/badge/AGNT-16%20tools-purple?style=flat-square)](#-agnt-plugin)
 
 **Build, train, optimize, and deploy neural networks — all from natural language.**
 **Analyze workflows, predict failures, and evolve AGNT itself.**
 
-*One line. One model. Zero guesswork.*
-
-[Quick Start](#-quick-start) · [Architecture](#-supported-architectures) · [AGNT Plugin](#-agnt-plugin) · [Tools](#-all-15-agnt-tools) · [Evidence](#-live-evidence)
-
----
+[Quick Start](#-quick-start) · [Architecture](#-supported-architectures) · [AGNT Plugin](#-agnt-plugin) · [Tools](#-all-16-agnt-tools) · [Evidence](#-live-evidence)
 
 </div>
 
@@ -39,8 +35,6 @@ But NeuralForge is more than a model builder. It's AGNT's **data intelligence la
 
 **For humans:** It's the fastest path from idea to trained model.
 **For AI agents:** It's a first-class tool that turns neural engineering into a callable capability.
-
----
 
 ## 🚀 Quick Start
 
@@ -70,16 +64,6 @@ report = evaluator.evaluate(test_loader)
 print(f"Accuracy: {report.metrics['accuracy']:.2%}")
 ```
 
-### From the CLI
-
-```bash
-neuralforge create "ResNet for CIFAR-10 with <5M params" --name my-model
-neuralforge info
-neuralforge list-models
-```
-
----
-
 ## 🏗️ Supported Architectures
 
 | Family | Status | Best For |
@@ -90,268 +74,64 @@ neuralforge list-models
 | **Vision Transformer (ViT)** | ✅ | Image classification, multimodal |
 | **MLP-Mixer** | ✅ | Alternative to attention-based vision |
 | **KAN** | ✅ | Scientific ML, interpretable models |
-| **Mamba / SSM** | 🔜 | Long-sequence modeling |
-| **MoE** | 🔜 | Sparse expert routing |
-| **Diffusion / Flow Matching** | 🔜 | Generative modeling |
+| **Mamba / SSM** | ✅ | Long-sequence modeling |
+| **MoE** | ✅ | Sparse expert routing |
+| **Diffusion** | ✅ | Generative modeling |
 | **Custom** | ✅ | Bring your own architecture |
 
----
-
-## 🧠 Core Capabilities
-
-### 1. Natural Language → Neural Network
-```python
-spec = NeuralForgeSpec.from_description(
-    "Build a vision transformer for medical image classification "
-    "under 8GB VRAM with >85% accuracy"
-)
-# Automatically parses: architecture=ViT, task=image_classification,
-#   constraint.max_memory_mb=8192, constraint.min_accuracy=0.85
-```
-
-### 2. Auto-Architecture Search
-```python
-from neuralforge.auto.architect import ArchitectAgent
-agent = ArchitectAgent()
-proposals = agent.propose(
-    task_description="Image classification for satellite imagery",
-    data_profile=DataProfile(
-        task_type=TaskType.IMAGE_CLASSIFICATION,
-        input_shape=(3, 224, 224), num_classes=17
-    ),
-    constraints=Constraints(max_parameters=10_000_000),
-    num_proposals=5,
-)
-```
-
-### 3. Production Training Engine
-- Mixed Precision (FP16/BF16/Mixed) with automatic loss scaling
-- Exponential Moving Average (EMA) for stable inference
-- Distributed Training (DDP, FSDP, DeepSpeed)
-- LR Scheduling (Cosine, OneCycle, ReduceOnPlateau, Polynomial)
-- Early Stopping with configurable patience
-- Full determinism, experiment tracking, config versioning
-
-### 4. Hyper-Optimization Suite
-```python
-from neuralforge.optimize import MetaOptimizer, prune_model, quantize_model, distill_model
-
-meta = MetaOptimizer()
-critique = meta.critique(spec, training_result)
-next_spec = meta.propose_next_spec(spec, training_result)
-
-pruned = prune_model(model, PruningConfig(amount=0.3))
-quantized = quantize_model(model, QuantizationConfig(method=QuantizationMethod.DYNAMIC_INT8))
-student = distill_model(teacher, student, DistillationConfig(temperature=4.0))
-```
-
-### 5. Comprehensive Evaluation
-- Overall accuracy, loss, macro-F1
-- Per-class precision, recall, F1, support
-- Confusion matrix
-- Expected Calibration Error (ECE)
-- Failure analysis (top confused pairs, high-confidence failures)
-- Actionable recommendations
-
-### 6. Export Pipeline
-```python
-from neuralforge.utils import export_model
-from neuralforge.spec import ExportConfig, ExportFormat
-
-export_model(model, ExportConfig(format=ExportFormat.ONNX, output_path="./export"))
-export_model(model, ExportConfig(format=ExportFormat.TORCHSCRIPT, output_path="./export"))
-export_model(model, ExportConfig(format=ExportFormat.SAFETENSORS, output_path="./export"))
-```
-
----
-
-## 📦 AGNT Plugin
-
-NeuralForge is available as a **first-class AGNT plugin** with 15 tools.
-
-### Install
-```bash
-# From AGNT marketplace
-agnt plugins install neuralforge
-
-# From local file
-agnt plugins install-file ./neuralforge-agnt-plugin.zip
-```
-
-### All 15 AGNT Tools
+## 📦 AGNT Plugin — 16 Tools
 
 | # | Tool | Description |
 |---|------|-------------|
-| 1 | **neuralforge_smart** | Smart Engine — Universal decision maker (retry/optimize/predict/pattern/fix/analyze) |
-| 2 | **neuralforge_evolve** | Evolution Engine — 5-phase self-improvement cycle |
-| 3 | **neuralforge_analyze** | Workflow Analyzer — Predict failures, detect anomalies |
-| 4 | **neuralforge_learn** | Data Learner — 4 problem types (regression/classification/forecasting/anomaly) |
-| 5 | **neuralforge_pattern** | Pattern Engine — 5 pattern types (trend/seasonal/stationary/chaotic/step) |
-| 6 | **neuralforge_test** | Self-Test Suite — Run all tests, get pass/fail + metrics |
-| 7 | **neuralforge_create** | Create models from natural language |
-| 8 | **neuralforge_train** | Train with AMP, EMA, LR scheduling, early stopping |
-| 9 | **neuralforge_evaluate** | Comprehensive evaluation + recommendations |
-| 10 | **neuralforge_evaluate_enhanced** | Eval + Multi-Objective Quality Predictor (acc/lat/mem) |
-| 11 | **neuralforge_optimize** | Architecture search via evolutionary methods |
-| 12 | **neuralforge_export** | Export to ONNX/TorchScript/Safetensors |
-| 13 | **neuralforge_profile** | Profile params, latency, throughput, GPU memory |
-| 14 | **neuralforge_prune** | Model pruning (L1 unstructured/structured) |
-| 15 | **neuralforge_quantize** | Model quantization (dynamic INT8) |
-
----
+| 1 | **neuralforge_auto** | Auto-Evolution — Continuous monitoring & self-improvement |
+| 2 | **neuralforge_smart** | Smart Engine — Universal decision maker (6 modes) |
+| 3 | **neuralforge_evolve** | Evolution Engine — 5-phase self-improvement cycle |
+| 4 | **neuralforge_analyze** | Workflow Analyzer — Predict failures, detect anomalies |
+| 5 | **neuralforge_learn** | Data Learner — 4 problem types |
+| 6 | **neuralforge_pattern** | Pattern Engine — 5 pattern types |
+| 7 | **neuralforge_test** | Self-Test Suite |
+| 8 | **neuralforge_create** | Create models from natural language |
+| 9 | **neuralforge_train** | Train with AMP, EMA, LR scheduling |
+| 10 | **neuralforge_evaluate** | Comprehensive evaluation |
+| 11 | **neuralforge_evaluate_enhanced** | Eval + Quality Predictor (acc/lat/mem) |
+| 12 | **neuralforge_optimize** | Architecture search |
+| 13 | **neuralforge_export** | Export to ONNX/TorchScript/Safetensors |
+| 14 | **neuralforge_profile** | Profile params, latency, memory |
+| 15 | **neuralforge_prune** | Model pruning |
+| 16 | **neuralforge_quantize** | Model quantization |
 
 ## 📊 Live Evidence
 
-All tools tested on real AGNT data (2,947 workflow executions, 10 workflows):
+Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 
 | Component | Test | Result | Time |
 |-----------|------|--------|------|
-| **DataLearner** | Regression R² | **0.945** | 1.65s |
+| **DataLearner** | Regression R² | **0.972** | 1.22s |
 | **DataLearner** | Classification | **98.7%** | 0.54s |
-| **Pattern Engine** | Trend detection | **r=0.77** | 0.26s |
+| **Pattern Engine** | Trend detection | **r=0.89** | 0.31s |
 | **Pattern Engine** | Seasonal detection | **r=0.79** | 0.13s |
 | **Quality Predictor** | Accuracy r | **0.999** | 4.7s |
-| **Quality Predictor** | Memory r | **0.993** | 4.7s |
-| **Evolution Engine** | Health score | **76.7%** | — |
+| **Evolution Engine** | Health score | **55.6%** (real workflows) | — |
 | **Evolution Engine** | Recommendations | **3 generated** | — |
 | **Smart Engine** | Retry decision | **retry (conf=0.75)** | — |
-| **Smart Engine** | Pattern detection | **seasonal (r=0.46)** | — |
-| **Workflow Analyzer** | Anomaly detection | **2 anomalies (z>2.0)** | — |
+| **Auto-Evolution** | Anomaly detection | **12 alerts** across 10 batches | — |
 
 **Full test suite: 102 unit tests + 11 integration tests, all passing.**
 
----
+## 🧠 How NeuralForge Evolves AGNT
 
-## 🤖 Agent Integration
-
-```python
-from neuralforge import as_tool
-
-# One-line registration
-tool = as_tool("neuralforge")
-
-# Invoke from any agent
-result = tool.invoke({
-    "action": "full_pipeline",
-    "description": "Build a ResNet for CIFAR-10 with <5M params reaching >92% accuracy"
-})
-```
-
-### LangChain
-```python
-from neuralforge import get_all_langchain_tools
-tools = get_all_langchain_tools()
-```
-
-### CrewAI
-```python
-from neuralforge import get_crewai_tools
-```
-
-### AutoGen
-```python
-from neuralforge import get_autogen_functions
-```
-
----
-
-## 📁 Project Structure
-
-```
-neuralforge/
-├── neuralforge/
-│   ├── __init__.py              # Main exports + quick_build()
-│   ├── spec.py                  # NeuralForgeSpec + all Pydantic models
-│   ├── cli.py                   # Typer CLI
-│   ├── core/                    # Engine, registry, model builder
-│   │   ├── forge.py
-│   │   └── registry.py
-│   ├── training/                # Training engine, callbacks, distributed
-│   │   ├── engine.py
-│   │   ├── callbacks.py
-│   │   └── distributed.py
-│   ├── evaluation/              # Evaluator with quality prediction
-│   │   ├── evaluator.py
-│   │   └── quality_predictor.py
-│   ├── auto/                    # Architecture search, NAS, scaling
-│   │   ├── architect.py
-│   │   ├── nas.py
-│   │   └── scaling.py
-│   ├── optimize/                # Meta-optimizer, pruning, quantization, distillation
-│   │   ├── meta_optimizer.py
-│   │   ├── pruning.py
-│   │   ├── quantization.py
-│   │   └── distillation.py
-│   ├── pattern_engine.py        # Pattern detection & prediction
-│   ├── learner.py               # Data learner (4 problem types)
-│   ├── analyzer.py              # Workflow analyzer
-│   ├── smart_engine.py          # Smart decision engine
-│   ├── evo_engine.py            # Evolution engine
-│   ├── tools/                   # Agent tool wrappers
-│   │   ├── agent_tool.py
-│   │   ├── langchain_tools.py
-│   │   └── multi_agent.py
-│   ├── memory/                  # Insights store
-│   └── utils/                   # Export, profiling, visualization
-├── examples/                    # 3 complete examples
-├── tests/                       # 102 tests — all passing ✅
-├── agnt-plugin/                 # AGNT marketplace plugin
-│   ├── manifest.json
-│   └── tools/                   # 15 JS tool files
-├── pyproject.toml
-├── README.md
-├── CHANGELOG.md
-└── AGENT_GUIDE.md
-```
-
----
-
-## 🧪 Running Tests
-
-```bash
-pip install -e ".[dev]"
-pytest tests/ -v
-# 102 passed ✅
-```
-
----
-
-## 🗺️ Roadmap
-
-- [x] **Data Learner** — Universal data intelligence (4 problem types)
-- [x] **Pattern Engine** — Time-series prediction (5 pattern types)
-- [x] **Quality Predictor** — Multi-objective (accuracy/latency/memory)
-- [x] **Workflow Analyzer** — Failure prediction + anomaly detection
-- [x] **Smart Engine** — Universal decision maker (6 modes)
-- [x] **Evolution Engine** — 5-phase self-improvement cycle
-- [ ] **JAX/Flax backend** — TPU-native training
-- [ ] **Mamba/SSM** — State-space model support
-- [ ] **Diffusion models** — DDPM, score-based generative models
-- [ ] **Optuna integration** — Full Bayesian hyperparameter search
-- [ ] **WebGPU export** — Browser-native inference
-- [ ] **Gradio/Streamlit UI** — No-code interface
-
----
-
-## 🤝 Contributing
-
-1. Fork the repo
-2. Create a feature branch: `git checkout -b feat/amazing-feature`
-3. Run tests: `pytest tests/ -v`
-4. Submit a PR
-
----
+1. **Observe** — Ingests every workflow execution (duration, success/failure, step count)
+2. **Learn** — Pattern engine detects trends, seasonal cycles, degradation
+3. **Predict** — Forecasts which workflows will fail before they run
+4. **Act** — Auto-applies fixes (retry with backoff, timeout increase, monitoring)
+5. **Verify** — Measures improvement after each action
+6. **Accumulate** — Knowledge base grows with every execution
 
 ## 📄 License
 
-Apache 2.0 — use it, fork it, ship it.
-
----
+Apache 2.0
 
 <div align="center">
-
-**NeuralForge** — *Neural Networks. Forged by Agents.*
-
-Built with 🔥 by [jacksonjp0311-gif](https://github.com/jacksonjp0311-gif)
-
+<strong>NeuralForge</strong> — <em>Neural Networks. Forged by Agents.</em><br>
+<a href="https://github.com/jacksonjp0311-gif/-NeuralForge">github.com/jacksonjp0311-gif/-NeuralForge</a>
 </div>
