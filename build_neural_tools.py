@@ -15,7 +15,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+nf_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, nf_dir)
 from neuralforge.learner import DataLearner
 from neuralforge.smart_engine import SmartEngine
 from neuralforge.pattern_engine import PatternEngine
