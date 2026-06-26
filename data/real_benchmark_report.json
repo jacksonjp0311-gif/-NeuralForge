@@ -1,0 +1,54 @@
+{
+  "benchmark_version": "1.0.0",
+  "timestamp": "2026-06-26T21:27:45.888469+00:00",
+  "data_source": "real_executions",
+  "total_executions": 3940,
+  "seed": 42,
+  "components": {
+    "data_learner": {
+      "status": "success",
+      "component": "DataLearner",
+      "problem_type": "anomaly",
+      "data_source": "real_executions",
+      "split": {
+        "train_size": 2364,
+        "val_size": 788,
+        "test_size": 788
+      },
+      "metrics": {
+        "train_loss": 0.010106,
+        "val_loss": 0.00955,
+        "test_loss": 0.009351,
+        "train_metric_name": "anomalies_detected",
+        "train_metric_value": 8
+      },
+      "overfit_gap": 0.000755,
+      "seed": 42,
+      "epochs": 25,
+      "wall_time_seconds": 5.25,
+      "timestamp": "2026-06-26T21:27:51.140564+00:00",
+      "notes": "Held-out test on real_executions data. Problem type detected: anomaly. Overfit gap (train-test): 0.0008"
+    },
+    "pattern_engine": {
+      "status": "success",
+      "pattern_type": "chaotic",
+      "confidence": 0.203,
+      "mae_on_held_out": 10547.775733333334,
+      "data_source": "real_executions",
+      "train_size": 47,
+      "test_size": 3
+    },
+    "smart_engine": {
+      "status": "success",
+      "decisions_on_held_out": 3,
+      "sample_decision": {
+        "status": "error",
+        "error": "Cannot auto-detect context. Provide more data or specify context explicitly.",
+        "hint": "Use context='retry', 'optimize', 'predict', 'pattern', 'fix', or 'analyze'",
+        "training_time_seconds": 0.0
+      },
+      "data_source": "real_executions"
+    }
+  },
+  "total_wall_time_seconds": 5.78
+}
