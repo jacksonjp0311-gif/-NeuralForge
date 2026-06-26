@@ -1,8 +1,9 @@
 """
-NeuralForge v2.0 — Agent-Native Neural Network Forge
+NeuralForge v2.5.0 — Agent-Native Neural Network Forge
 
-A production-ready, pluggable toolkit that turns any AI agent into a
-first-class neural network creator, trainer, optimizer, and scientist.
+A pluggable toolkit that turns any AI agent into a first-class neural network
+creator, trainer, optimizer, and scientist. Includes real-time evolution,
+AGNT runtime bridge, and held-out benchmark flows.
 """
 
 __version__ = "2.5.0"
@@ -83,6 +84,26 @@ from neuralforge.optimize.meta_optimizer import MetaOptimizer
 
 # Memory
 from neuralforge.memory.insights_store import InsightsStore
+
+# Analysis & Evolution (real-time + benchmarks + AGNT bridge)
+from neuralforge.analyzer import WorkflowAnalyzer
+from neuralforge.smart_engine import SmartEngine
+from neuralforge.pattern_engine import PatternEngine
+from neuralforge.learner import DataLearner
+from neuralforge.realtime_evo import RealtimeEvolutionEngine
+from neuralforge.agnt_bridge import (
+    record_execution,
+    get_health_summary,
+    rehydrate_from_log,
+    normalize_agnt_event,
+)
+from neuralforge.benchmark import (
+    run_full_benchmark,
+    run_learner_benchmark,
+    generate_synthetic_executions,
+    split_data,
+    BenchmarkResult,
+)
 
 # Utils
 from neuralforge.utils.profiling import profile_model
