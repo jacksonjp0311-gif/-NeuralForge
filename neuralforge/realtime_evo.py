@@ -15,6 +15,7 @@ from __future__ import annotations
 import logging, time, json
 from typing import Dict, List, Optional, Any
 from collections import defaultdict
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -29,9 +30,16 @@ logger = logging.getLogger("neuralforge.realtime")
 class RealtimeEvolutionEngine:
     """Continuously monitors AGNT workflows and improves predictions over time."""
 
-    def __init__(self, window_size: int = 50, alert_threshold: float = 0.3):
+    def __init__(
+        self,
+        window_size: int = 50,
+        alert_threshold: float = 0.3,
+        event_log_path: Optional[str] = None,
+        load_existing: bool = False,
+    ):
         self.window_size = window_size
         self.alert_threshold = alert_threshold
+        self.event_log_path = Path(event_log_path) if event_log_path else None
         self.analyzer = WorkflowAnalyzer()
         self.smart = SmartEngine()
         self.pattern_engine = PatternEngine()
@@ -43,8 +51,96 @@ class RealtimeEvolutionEngine:
         self._alert_count = 0
         self._total_processed = 0
 
-    def process_batch(self, executions: List[Dict]) -> Dict[str, Any]:
+        if load_existing and self.event_log_path and self.event_log_path.exists():
+            existing = self.load_event_log(self.event_log_path)
+            if existing:
+                self.process_batch(existing, persist=False)
+
+    @staticmethod
+    def normalize_execution(execution: Dict[str, Any]) -> Dict[str, Any]:
+        """Normalize a raw workflow/tool execution event into the realtime schema."""
+        event = dict(execution)
+        status = str(event.get("status", "")).lower()
+
+        if "success" not in event:
+            event["success"] = status not in {"error", "failed", "failure", "timeout"}
+        else:
+            event["success"] = bool(event["success"])
+
+        event["duration_ms"] = float(
+            event.get("duration_ms")
+            or event.get("duration")
+            or event.get("elapsed_ms")
+            or event.get("latency_ms")
+            or 0.0
+        )
+        event["step_count"] = int(
+            event.get("step_count")
+            or event.get("steps")
+            or event.get("node_count")
+            or len(event.get("nodes", []) or [])
+            or 0
+        )
+        event["workflow_id"] = str(
+            event.get("workflow_id")
+            or event.get("workflow_name")
+            or event.get("id")
+            or "unknown"
+        )
+        event["workflow_name"] = str(event.get("workflow_name") or event["workflow_id"])
+        event["timestamp"] = event.get("timestamp") or time.time()
+        if not event.get("error_type") and not event["success"]:
+            event["error_type"] = event.get("error") or event.get("exception_type") or status or "unknown"
+        return event
+
+    @staticmethod
+    def load_event_log(path: str | Path) -> List[Dict[str, Any]]:
+        """Load newline-delimited execution events, skipping malformed lines."""
+        events = []
+        p = Path(path)
+        if not p.exists():
+            return events
+        with p.open("r", encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    events.append(json.loads(line))
+                except json.JSONDecodeError:
+                    logger.warning("Skipping malformed execution event line in %s", p)
+        return events
+
+    def append_event(self, execution: Dict[str, Any], path: Optional[str | Path] = None) -> Path:
+        """Append one normalized execution event to a JSONL ledger."""
+        p = Path(path) if path else self.event_log_path
+        if p is None:
+            raise ValueError("No event_log_path configured")
+        p.parent.mkdir(parents=True, exist_ok=True)
+        with p.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(execution, sort_keys=True) + "\n")
+        return p
+
+    def ingest_execution(self, execution: Dict[str, Any], persist: bool = True) -> Dict[str, Any]:
+        """Hook for AGNT to call after each workflow/tool execution."""
+        event = self.normalize_execution(execution)
+        if persist and self.event_log_path:
+            self.append_event(event)
+        result = self.process_batch([event], persist=False)
+        result["ingested_event"] = {
+            "workflow_id": event["workflow_id"],
+            "success": event["success"],
+            "duration_ms": event["duration_ms"],
+        }
+        return result
+
+    def process_batch(self, executions: List[Dict], persist: bool = False) -> Dict[str, Any]:
         """Process a batch of new executions. Called after each workflow run."""
+        executions = [self.normalize_execution(e) for e in executions]
+        if persist and self.event_log_path:
+            for e in executions:
+                self.append_event(e)
+
         self._executions.extend(executions)
         self._total_processed += len(executions)
 

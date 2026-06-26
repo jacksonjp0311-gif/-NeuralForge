@@ -68,6 +68,7 @@ class WorkflowAnalyzer:
         results["stats"] = {
             "total_executions": n,
             "success_rate": round(float(np.mean(successes)), 4),
+            "health_score": round(float(np.mean(successes)) * 100, 1),
             "avg_duration_ms": round(float(np.mean(durations)), 1),
             "min_duration_ms": round(float(np.min(durations)), 1),
             "max_duration_ms": round(float(np.max(durations)), 1),
