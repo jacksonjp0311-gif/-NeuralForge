@@ -6,15 +6,15 @@
  * and the neuralforge Python engine.
  */
 
-import { execSync } from "child_process";
+import { spawnSync } from "child_process";
 import path from "path";
 import { fileURLToPath } from "url";
-import fs from "fs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Find the neuralforge Python library location
-const NEURALFORGE_ROOT = path.resolve(__dirname, "../../../../neuralforge");
+const REPO_ROOT = path.resolve(__dirname, "../..");
+const NEURALFORGE_ROOT = path.join(REPO_ROOT, "neuralforge");
 
 /**
  * Execute a Python code string that uses NeuralForge and return parsed JSON result.
@@ -23,8 +23,8 @@ const NEURALFORGE_ROOT = path.resolve(__dirname, "../../../../neuralforge");
 export function runNeuralforge(code, timeoutMs = 120000) {
   const fullCode = `
 import sys, json, os
-sys.path.insert(0, r"${NEURALFORGE_ROOT}")
-os.chdir(r"${NEURALFORGE_ROOT}")
+sys.path.insert(0, r"${REPO_ROOT}")
+os.chdir(r"${REPO_ROOT}")
 
 try:
     import neuralforge as nf
@@ -40,7 +40,7 @@ try:
     import torch
     import numpy as np
 except ImportError as e:
-    print(json.dumps({"status": "error", "error": f"Import error: {str(e)}"}))
+    print("NF_RESULT:" + json.dumps({"status": "error", "error": f"Import error: {str(e)}"}))
     sys.exit(0)
 
 try:
@@ -48,31 +48,29 @@ ${code.split("\n").map(l => "    " + l).join("\n")}
     print("NF_RESULT:" + json.dumps(output, default=str, ensure_ascii=False))
 except Exception as e:
     import traceback
-    print(json.dumps({"status": "error", "error": str(e), "trace": traceback.format_exc()[-500:]}))
+    print("NF_RESULT:" + json.dumps({"status": "error", "error": str(e), "trace": traceback.format_exc()[-500:]}))
 `;
 
   try {
-    const result = execSync(`python -c "${fullCode.replace(/"/g, '\\"').replace(/\n/g, ';')}"`, {
+    const result = spawnSync("python", ["-c", fullCode], {
       timeout: timeoutMs,
       encoding: "utf-8",
       maxBuffer: 10 * 1024 * 1024,
-      cwd: NEURALFORGE_ROOT,
+      cwd: REPO_ROOT,
     });
 
-    const lines = result.split("\n");
+    const lines = (result.stdout || "").split("\n");
     for (const line of lines) {
       if (line.startsWith("NF_RESULT:")) {
         return JSON.parse(line.substring("NF_RESULT:".length));
       }
     }
 
-    return { status: "error", error: "No result from NeuralForge", raw: result.slice(-500) };
+    const errText = (result.stderr || "").slice(-500);
+    return { status: "error", error: errText || "No result from NeuralForge" };
   } catch (err) {
-    if (err.stderr) {
-      return { status: "error", error: err.stderr.slice(-500) };
-    }
     return { status: "error", error: err.message };
   }
 }
 
-export { NEURALFORGE_ROOT };
+export { NEURALFORGE_ROOT, REPO_ROOT };

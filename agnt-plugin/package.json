@@ -1,6 +1,6 @@
 {
   "name": "neuralforge-plugin",
-  "version": "2.0.0",
+  "version": "2.5.0",
   "description": "NeuralForge AGNT Plugin — Build, train, optimize, and deploy neural networks from natural language",
   "type": "module",
   "keywords": ["agnt", "plugin", "neural-networks", "pytorch", "deep-learning"],

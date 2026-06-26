@@ -44,7 +44,7 @@ agnt plugins install-file neuralforge-agnt-plugin.zip
 
 - **ID:** neuralforge
 - **Category:** ml-tools
-- **Version:** 2.0.0
+- **Version:** 2.5.0
 - **License:** Apache-2.0
 - **Author:** jacksonjp0311-gif
 - **Repo:** https://github.com/jacksonjp0311-gif/-NeuralForge

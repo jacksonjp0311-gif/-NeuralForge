@@ -19,6 +19,7 @@ from __future__ import annotations
 import logging, time, json, os
 from typing import Dict, List, Optional, Any, Tuple
 from enum import Enum
+import hashlib
 
 import numpy as np
 import torch
@@ -232,7 +233,7 @@ class ErrorRecoveryNet(nn.Module):
         self.encoder = nn.Sequential(
             nn.Linear(16, 64), nn.GELU(), nn.BatchNorm1d(64),
             nn.Linear(64, 128), nn.GELU(), nn.Dropout(0.1),
-            nn.Linear(64, 64), nn.GELU(),
+            nn.Linear(128, 64), nn.GELU(),
         )
         self.action_head = nn.Linear(64, 8)  # 8 recovery actions
         self.success_head = nn.Linear(64, 1)  # probability of success after recovery
@@ -308,6 +309,7 @@ class ContinuousLearningEngine:
         self.memory_ranker = MemoryRanker()
         self.error_recovery = ErrorRecoveryNet()
         self.goal_prioritizer = GoalPrioritizer()
+        self.training_epochs = 25
         
         self.total_params = sum(
             sum(p.numel() for p in net.parameters())
@@ -317,6 +319,243 @@ class ContinuousLearningEngine:
         )
         
         logger.info(f"NeuroAdaptive initialized: {self.total_params:,} total parameters")
+
+    @staticmethod
+    def _stable_index(value: Any, modulo: int) -> int:
+        text = str(value or "unknown")
+        digest = hashlib.sha256(text.encode("utf-8")).hexdigest()
+        return int(digest[:8], 16) % modulo
+
+    @staticmethod
+    def _success(execution: Dict) -> float:
+        status = str(execution.get("status", "")).lower()
+        if "success" in execution:
+            return 1.0 if bool(execution.get("success")) else 0.0
+        return 0.0 if status in {"error", "failed", "failure", "timeout"} else 1.0
+
+    @staticmethod
+    def _duration_ms(execution: Dict) -> float:
+        return float(
+            execution.get("duration_ms")
+            or execution.get("duration")
+            or execution.get("elapsed_ms")
+            or execution.get("latency_ms")
+            or 0.0
+        )
+
+    @staticmethod
+    def _step_count(execution: Dict) -> float:
+        return float(
+            execution.get("step_count")
+            or execution.get("steps")
+            or execution.get("node_count")
+            or len(execution.get("nodes", []) or [])
+            or 0.0
+        )
+
+    @staticmethod
+    def _retry_count(execution: Dict) -> float:
+        return float(
+            execution.get("retry_count")
+            or execution.get("retries")
+            or execution.get("attempt")
+            or execution.get("attempts")
+            or 0.0
+        )
+
+    @staticmethod
+    def _params(execution: Dict) -> Dict:
+        params = execution.get("params") or execution.get("parameters") or execution.get("tool_params") or {}
+        return params if isinstance(params, dict) else {}
+
+    @staticmethod
+    def _tool_name(execution: Dict) -> str:
+        for key in ("tool_name", "tool", "tool_type", "node_type", "action", "plugin"):
+            if execution.get(key):
+                return str(execution[key])
+        calls = execution.get("tool_calls") or execution.get("tools") or []
+        if isinstance(calls, list) and calls:
+            first = calls[0]
+            if isinstance(first, dict):
+                return str(first.get("name") or first.get("tool") or first.get("type") or "unknown")
+            return str(first)
+        return "unknown"
+
+    @staticmethod
+    def _error_type(execution: Dict) -> str:
+        return str(
+            execution.get("error_type")
+            or execution.get("error_code")
+            or execution.get("exception_type")
+            or execution.get("error")
+            or "none"
+        ).lower()
+
+    @staticmethod
+    def _text_len(execution: Dict, *keys: str) -> float:
+        for key in keys:
+            value = execution.get(key)
+            if value:
+                return float(len(str(value)))
+        return 0.0
+
+    def _execution_scalar_features(self, execution: Dict, index: int, total: int) -> Dict[str, float]:
+        duration = self._duration_ms(execution)
+        steps = self._step_count(execution)
+        retries = self._retry_count(execution)
+        params = self._params(execution)
+        success = self._success(execution)
+        tool = self._tool_name(execution)
+        workflow = execution.get("workflow_id") or execution.get("workflow_name") or "unknown"
+        return {
+            "duration": min(duration / 60000.0, 1.0),
+            "duration_log": min(np.log1p(duration) / np.log1p(600000.0), 1.0),
+            "steps": min(steps / 100.0, 1.0),
+            "retries": min(retries / 10.0, 1.0),
+            "success": success,
+            "error": 1.0 - success,
+            "param_count": min(len(params) / 20.0, 1.0),
+            "tool_hash": self._stable_index(tool, 1000) / 999.0,
+            "workflow_hash": self._stable_index(workflow, 1000) / 999.0,
+            "error_hash": self._stable_index(self._error_type(execution), 1000) / 999.0,
+            "response_len": min(self._text_len(execution, "response", "output", "result") / 8000.0, 1.0),
+            "prompt_len": min(self._text_len(execution, "prompt", "input", "query") / 8000.0, 1.0),
+            "progress": index / max(total - 1, 1),
+        }
+
+    def _chat_features_and_targets(self, executions: List[Dict]) -> Tuple[np.ndarray, np.ndarray]:
+        rows, targets = [], []
+        total = len(executions)
+        for i, e in enumerate(executions[:500]):
+            f = self._execution_scalar_features(e, i, total)
+            explicit_quality = e.get("quality_score", e.get("user_rating", e.get("score")))
+            if explicit_quality is not None:
+                quality = float(explicit_quality)
+                if quality > 1.0:
+                    quality = quality / 100.0 if quality <= 100 else 1.0
+            else:
+                quality = (
+                    0.60 * f["success"]
+                    + 0.15 * (1.0 - f["duration"])
+                    + 0.10 * (1.0 - f["retries"])
+                    + 0.10 * min(f["response_len"] * 4.0, 1.0)
+                    + 0.05 * (1.0 - f["error"])
+                )
+            rows.append([
+                f["duration"], f["duration_log"], f["steps"], f["retries"], f["success"],
+                f["error"], f["param_count"], f["tool_hash"], f["workflow_hash"], f["error_hash"],
+                f["response_len"], f["prompt_len"], f["progress"],
+                1.0 if e.get("cached") else 0.0,
+                1.0 if e.get("fallback_used") else 0.0,
+                min(float(e.get("tokens", e.get("token_count", 0)) or 0) / 32000.0, 1.0),
+                min(float(e.get("cost_usd", 0) or 0) / 10.0, 1.0),
+                1.0 if e.get("human_feedback") else 0.0,
+                1.0 if e.get("validation_passed", f["success"]) else 0.0,
+                1.0,
+            ])
+            targets.append([float(np.clip(quality, 0.0, 1.0))])
+        return np.array(rows, dtype=np.float32), np.array(targets, dtype=np.float32)
+
+    def _tool_features_and_targets(self, executions: List[Dict]) -> Tuple[np.ndarray, np.ndarray]:
+        rows, targets = [], []
+        total = len(executions)
+        for i, e in enumerate(executions[:500]):
+            f = self._execution_scalar_features(e, i, total)
+            rows.append([
+                f["duration"], f["duration_log"], f["steps"], f["retries"], f["success"],
+                f["error"], f["param_count"], f["workflow_hash"], f["error_hash"],
+                f["response_len"], f["prompt_len"], f["progress"],
+                min(float(e.get("queue_depth", 0) or 0) / 100.0, 1.0),
+                min(float(e.get("parallel_count", 1) or 1) / 32.0, 1.0),
+                min(float(e.get("memory_mb", 0) or 0) / 32768.0, 1.0),
+                min(float(e.get("cpu_percent", 0) or 0) / 100.0, 1.0),
+                min(float(e.get("gpu_percent", 0) or 0) / 100.0, 1.0),
+                min(float(e.get("timeout_ms", 0) or 0) / 600000.0, 1.0),
+                1.0 if e.get("cached") else 0.0,
+                1.0 if e.get("rate_limited") else 0.0,
+                1.0 if e.get("auth_required") else 0.0,
+                f["tool_hash"],
+                self._stable_index(e.get("workflow_name", "unknown"), 1000) / 999.0,
+                self._stable_index(e.get("status", "unknown"), 1000) / 999.0,
+                self._stable_index(e.get("model", "unknown"), 1000) / 999.0,
+                min(float(e.get("input_bytes", 0) or 0) / 10_000_000.0, 1.0),
+                min(float(e.get("output_bytes", 0) or 0) / 10_000_000.0, 1.0),
+                min(float(e.get("tokens", 0) or 0) / 32000.0, 1.0),
+                min(float(e.get("cost_usd", 0) or 0) / 10.0, 1.0),
+                1.0 if e.get("validation_passed", f["success"]) else 0.0,
+                1.0 if e.get("user_visible") else 0.0,
+                1.0,
+            ])
+            targets.append(self._stable_index(self._tool_name(e), 150))
+        return np.array(rows, dtype=np.float32), np.array(targets, dtype=np.int64)
+
+    def _param_features_and_targets(self, executions: List[Dict]) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        contexts, tool_types, targets = [], [], []
+        total = len(executions)
+        for i, e in enumerate(executions[:400]):
+            f = self._execution_scalar_features(e, i, total)
+            params = self._params(e)
+            contexts.append([
+                f["duration"], f["steps"], f["retries"], f["success"],
+                f["error"], f["param_count"], f["workflow_hash"], f["progress"],
+            ])
+            tool_types.append(self._stable_index(self._tool_name(e), 50))
+            targets.append([
+                min(float(params.get("timeout_ms", e.get("timeout_ms", 30000)) or 30000) / 600000.0, 1.0),
+                min(float(params.get("retry_count", e.get("retry_count", 0)) or 0) / 10.0, 1.0),
+                min(float(params.get("backoff_factor", e.get("backoff_factor", 1.0)) or 1.0) / 10.0, 1.0),
+                min(float(params.get("batch_size", e.get("batch_size", 1)) or 1) / 1024.0, 1.0),
+                min(float(params.get("parallel_count", e.get("parallel_count", 1)) or 1) / 32.0, 1.0),
+                min(float(params.get("cache_ttl", e.get("cache_ttl", 0)) or 0) / 86400.0, 1.0),
+                min(float(params.get("priority", e.get("priority", 0.5)) or 0.5), 1.0),
+                min(float(params.get("scheduling_delay", e.get("scheduling_delay", 0)) or 0) / 3600.0, 1.0),
+            ])
+        return (
+            np.array(tool_types, dtype=np.int64),
+            np.array(contexts, dtype=np.float32),
+            np.array(targets, dtype=np.float32),
+        )
+
+    def _recovery_features_and_targets(self, executions: List[Dict]) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        actions = ['retry', 'retry_with_backoff', 'switch_tool', 'skip_step',
+                   'ask_user', 'use_cache', 'fallback_value', 'abort']
+        action_index = {name: i for i, name in enumerate(actions)}
+        failed = [e for e in executions if self._success(e) < 0.5 or self._error_type(e) != "none"]
+        rows, recovery_targets, success_targets = [], [], []
+        total = len(failed)
+        for i, e in enumerate(failed[:400]):
+            f = self._execution_scalar_features(e, i, total)
+            err = self._error_type(e)
+            explicit_action = str(e.get("recovery_action") or e.get("fix_action") or "").lower()
+            if explicit_action not in action_index:
+                if "timeout" in err or "rate" in err:
+                    explicit_action = "retry_with_backoff"
+                elif "auth" in err:
+                    explicit_action = "ask_user"
+                elif "cache" in err:
+                    explicit_action = "use_cache"
+                elif "tool" in err or "not found" in err:
+                    explicit_action = "switch_tool"
+                else:
+                    explicit_action = "retry"
+            recovered = e.get("recovery_success", e.get("resolved", 0.0))
+            rows.append([
+                f["duration"], f["duration_log"], f["steps"], f["retries"], f["param_count"],
+                f["tool_hash"], f["workflow_hash"], f["error_hash"], f["response_len"],
+                f["prompt_len"], f["progress"],
+                1.0 if "timeout" in err else 0.0,
+                1.0 if "memory" in err or "oom" in err else 0.0,
+                1.0 if "auth" in err else 0.0,
+                1.0 if "rate" in err else 0.0,
+                1.0,
+            ])
+            recovery_targets.append(action_index[explicit_action])
+            success_targets.append([float(np.clip(recovered, 0.0, 1.0))])
+        return (
+            np.array(rows, dtype=np.float32),
+            np.array(recovery_targets, dtype=np.int64),
+            np.array(success_targets, dtype=np.float32),
+        )
     
     def train_on_executions(self, executions: List[Dict]) -> Dict[str, float]:
         """Train all networks on real execution data."""
@@ -347,85 +586,74 @@ class ContinuousLearningEngine:
     
     def _train_chat_scorer(self, executions):
         """Train chat quality scorer on execution outcomes."""
-        # Create training data from execution patterns
-        n = min(len(executions), 500)
-        X = np.random.randn(n, 20).astype(np.float32)  # Placeholder — real features from executions
-        y_quality = np.random.rand(n, 1).astype(np.float32)
+        X, y_quality = self._chat_features_and_targets(executions)
         
         X_t, y_t = torch.tensor(X), torch.tensor(y_quality)
         opt = torch.optim.Adam(self.chat_scorer.parameters(), lr=1e-3)
         
-        for epoch in range(50):
+        for epoch in range(self.training_epochs):
             q, d, imp = self.chat_scorer(X_t)
             loss = F.mse_loss(q, y_t)
             opt.zero_grad()
             loss.backward()
             opt.step()
         
-        return {'loss': loss.item(), 'epochs': 50}
+        return {'loss': loss.item(), 'epochs': self.training_epochs, 'samples': len(X), 'feature_source': 'executions'}
     
     def _train_tool_selector(self, executions):
         """Train tool selector on which tools were actually used."""
-        n = min(len(executions), 500)
-        context = np.random.randn(n, 32).astype(np.float32)
-        tool_targets = np.random.randint(0, 150, (n,)).astype(np.int64)
+        context, tool_targets = self._tool_features_and_targets(executions)
         
         context_t = torch.tensor(context)
         targets_t = torch.tensor(tool_targets)
         opt = torch.optim.Adam(self.tool_selector.parameters(), lr=1e-3)
         
-        for epoch in range(50):
+        for epoch in range(self.training_epochs):
             probs, conf = self.tool_selector(context_t)
             loss = F.cross_entropy(probs, targets_t)
             opt.zero_grad()
             loss.backward()
             opt.step()
         
-        return {'loss': loss.item(), 'accuracy': (probs.argmax(1) == targets_t).float().mean().item()}
+        return {'loss': loss.item(), 'accuracy': (probs.argmax(1) == targets_t).float().mean().item(), 'samples': len(context), 'feature_source': 'executions'}
     
     def _train_param_optimizer(self, executions):
         """Train parameter optimizer on successful vs failed executions."""
-        n = min(len(executions), 400)
-        tool_types = np.random.randint(0, 50, (n,)).astype(np.int64)
-        context = np.random.randn(n, 8).astype(np.float32)
-        optimal_params = np.random.rand(n, 8).astype(np.float32)
+        tool_types, context, optimal_params = self._param_features_and_targets(executions)
         
         tool_t = torch.tensor(tool_types)
         ctx_t = torch.tensor(context)
         params_t = torch.tensor(optimal_params)
         opt = torch.optim.Adam(self.param_optimizer.parameters(), lr=1e-3)
         
-        for epoch in range(50):
+        for epoch in range(self.training_epochs):
             pred = self.param_optimizer(tool_t, ctx_t)
             loss = F.mse_loss(pred, params_t)
             opt.zero_grad()
             loss.backward()
             opt.step()
         
-        return {'loss': loss.item()}
+        return {'loss': loss.item(), 'samples': len(context), 'feature_source': 'executions'}
     
     def _train_error_recovery(self, executions):
         """Train error recovery on failed executions and their outcomes."""
-        failed = [e for e in executions if e.get('status') == 'error']
-        n = max(len(failed), 100)
-        
-        error_ctx = np.random.randn(n, 16).astype(np.float32)
-        recovery_targets = np.random.randint(0, 8, (n,)).astype(np.int64)
-        success_targets = np.random.rand(n, 1).astype(np.float32)
+        error_ctx, recovery_targets, success_targets = self._recovery_features_and_targets(executions)
+        if len(error_ctx) < 2:
+            return {'status': 'skipped', 'reason': 'no_failed_executions', 'failed_executions_analyzed': len(error_ctx)}
         
         ctx_t = torch.tensor(error_ctx)
         rec_t = torch.tensor(recovery_targets)
         succ_t = torch.tensor(success_targets)
         opt = torch.optim.Adam(self.error_recovery.parameters(), lr=1e-3)
         
-        for epoch in range(50):
+        for epoch in range(self.training_epochs):
             actions, success, rec_time = self.error_recovery(ctx_t)
             loss = F.cross_entropy(actions, rec_t) + F.mse_loss(success, succ_t)
             opt.zero_grad()
             loss.backward()
             opt.step()
         
-        return {'loss': loss.item(), 'failed_executions_analyzed': len(failed)}
+        return {'loss': loss.item(), 'failed_executions_analyzed': len(error_ctx), 'feature_source': 'executions'}
     
     def _save_models(self):
         """Save all trained models."""

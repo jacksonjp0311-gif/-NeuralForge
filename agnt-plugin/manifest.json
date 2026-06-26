@@ -1,7 +1,7 @@
 {
   "name": "neuralforge",
   "displayName": "NeuralForge",
-  "version": "2.0.0",
+  "version": "2.5.0",
   "description": "Build, train, optimize, and deploy neural networks from natural language. Agent-native neural engineering platform with PyTorch backend. Supports 8+ architecture families, auto-architecture search, hyperparameter optimization, pruning, quantization, and distillation.",
   "author": "jacksonjp0311-gif",
   "icon": "brain",

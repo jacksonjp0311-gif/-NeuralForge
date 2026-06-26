@@ -5,7 +5,7 @@ A production-ready, pluggable toolkit that turns any AI agent into a
 first-class neural network creator, trainer, optimizer, and scientist.
 """
 
-__version__ = "2.0.0"
+__version__ = "2.5.0"
 
 # Core
 from neuralforge.spec import (

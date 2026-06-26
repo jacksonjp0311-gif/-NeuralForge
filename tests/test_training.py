@@ -50,6 +50,9 @@ class TestEMA:
         model = nn.Linear(10, 5)
         ema = ExponentialMovingAverage(model, decay=0.9)
         old_shadow = {k: v.clone() for k, v in ema.shadow.items()}
+        with torch.no_grad():
+            for param in model.parameters():
+                param.add_(0.1)
         ema.update(model)
         for k in ema.shadow:
             assert not torch.equal(ema.shadow[k], old_shadow[k])

@@ -7,13 +7,14 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const NEURALFORGE_ROOT = path.resolve(__dirname, "../../../../neuralforge");
+const REPO_ROOT = path.resolve(__dirname, "../..");
+const NEURALFORGE_ROOT = path.join(REPO_ROOT, "neuralforge");
 
 export function runPython(code, timeoutMs = 120000) {
   const fullCode = `
 import sys, json, os
-sys.path.insert(0, r"${NEURALFORGE_ROOT}")
-os.chdir(r"${NEURALFORGE_ROOT}")
+sys.path.insert(0, r"${REPO_ROOT}")
+os.chdir(r"${REPO_ROOT}")
 try:
     import neuralforge as nf
     from neuralforge.spec import *
@@ -42,7 +43,7 @@ except Exception as e:
       timeout: timeoutMs,
       encoding: "utf-8",
       maxBuffer: 10 * 1024 * 1024,
-      cwd: NEURALFORGE_ROOT,
+      cwd: REPO_ROOT,
     });
 
     const output = result.stdout || "";
@@ -58,3 +59,5 @@ except Exception as e:
     return { status: "error", error: err.message };
   }
 }
+
+export { NEURALFORGE_ROOT, REPO_ROOT };
