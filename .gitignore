@@ -56,3 +56,5 @@ artifacts/tpn/episodic_memory_v*.jsonl
 artifacts/tpn/episodic_memory_summary_v*.json
 artifacts/tpn/improvement/*.json
 artifacts/tpn/improvement/*.jsonl
+artifacts/tpn/evidence/*.json
+artifacts/tpn/evidence/*.jsonl

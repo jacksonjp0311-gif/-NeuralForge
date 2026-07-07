@@ -16,6 +16,7 @@ from typing import Any
 import numpy as np
 
 from neuralforge.tesseract.jarvis import JarvisServiceConfig, TesseractJarvisRuntime
+from neuralforge.tesseract.memory_core import DEFAULT_EPISODE_PATH, TesseractEpisodicMemory
 
 
 BENCHMARK_VERSION = "tpn.benchmark.v1.4"
@@ -145,6 +146,25 @@ def run_toy_benchmark(
     return report
 
 
+
+def record_benchmark_episode(report: dict[str, Any], memory_path: str | Path = DEFAULT_EPISODE_PATH) -> dict[str, Any]:
+    """Record a benchmark report as an episodic memory episode."""
+    mean_score = float(report.get("mean_score", 0.0) or 0.0)
+    plan_accuracy = float(report.get("plan_accuracy", 0.0) or 0.0)
+    safety_score = float(report.get("safety_score", 0.0) or 0.0)
+    summary = (
+        f"Benchmark {report.get('benchmark_version', BENCHMARK_VERSION)} "
+        f"mean_score={mean_score:.3f} plan_accuracy={plan_accuracy:.3f} safety_score={safety_score:.3f}"
+    )
+    memory = TesseractEpisodicMemory(memory_path)
+    return memory.append(
+        "benchmark",
+        summary,
+        {"benchmark": report},
+        tags=["benchmark", "evidence", "v1.6.1"],
+    )
+
+
 class TesseractBenchmarkHarness:
     def __init__(self, runtime: TesseractJarvisRuntime | None = None) -> None:
         self.runtime = runtime or TesseractJarvisRuntime()
@@ -239,6 +259,7 @@ def main() -> None:
     parser.add_argument("--contract-path", default="artifacts/tpn/tesseract_jarvis_manifest_v1_6.json")
     parser.add_argument("--out-dir", default=str(DEFAULT_BENCHMARK_DIR))
     parser.add_argument("--write", action="store_true")
+    parser.add_argument("--record-memory", action="store_true")
     args = parser.parse_args()
 
     runtime = TesseractJarvisRuntime(JarvisServiceConfig(
@@ -259,9 +280,11 @@ if __name__ == "__main__":
     main()
 
 
-def run_full_benchmark(*, write: bool = False, out_dir: str | Path = DEFAULT_BENCHMARK_DIR) -> dict[str, Any]:
+def run_full_benchmark(*, write: bool = False, record_memory: bool = False, out_dir: str | Path = DEFAULT_BENCHMARK_DIR) -> dict[str, Any]:
     harness = TesseractBenchmarkHarness()
     report = harness.run()
     if write:
         report["paths"] = harness.write_report(report, out_dir)
+    if record_memory:
+        report["memory_episode"] = record_benchmark_episode(report)
     return report
