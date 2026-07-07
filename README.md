@@ -127,6 +127,16 @@ Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 5. **Verify** — Measures improvement after each action
 6. **Accumulate** — Knowledge base grows with every execution
 
+## Tesseract Pathway Network v1.13.2
+
+TPN v1.13.2 closes the contract checker operational wound.
+
+```text
+live contract check -> offline contract_manifest fallback when server is down
+```
+
+See [`docs/TESSERACT_PATHWAY_NETWORK_v1_13_2.md`](./docs/TESSERACT_PATHWAY_NETWORK_v1_13_2.md).
+
 ## Tesseract Pathway Network v1.13.1
 
 TPN v1.13.1 adds receipt compression for the compressed control bundle.

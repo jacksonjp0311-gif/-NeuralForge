@@ -256,7 +256,7 @@ def main() -> None:
     parser.add_argument("--checkpoint", default="artifacts/tpn/tpn_mind_core_v0_6.pt")
     parser.add_argument("--memory-path", default="artifacts/tpn/command_memory.jsonl")
     parser.add_argument("--ledger-path", default="artifacts/tpn/action_ledger_v0_9.jsonl")
-    parser.add_argument("--contract-path", default="artifacts/tpn/tesseract_jarvis_manifest_v1_13_1.json")
+    parser.add_argument("--contract-path", default="artifacts/tpn/tesseract_jarvis_manifest_v1_13_2.json")
     parser.add_argument("--out-dir", default=str(DEFAULT_BENCHMARK_DIR))
     parser.add_argument("--write", action="store_true")
     parser.add_argument("--record-memory", action="store_true")

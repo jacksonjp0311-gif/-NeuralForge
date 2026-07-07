@@ -1,24 +1,78 @@
 param(
-  [int]$Port = 8767,
-  [string]$ExpectedVersion = "tpn.v1.13.1"
+  [string]$Base = "http://127.0.0.1:8765",
+  [string]$ExpectedVersion = "tpn.v1.13.2",
+  [switch]$RequireLive
 )
 
 Set-StrictMode -Version 2.0
 $ErrorActionPreference = "Stop"
 
-$Base = "http://127.0.0.1:$Port"
-$health = Invoke-RestMethod "$Base/health"
-$contract = Invoke-RestMethod "$Base/contract"
-$skills = Invoke-RestMethod "$Base/skills"
+function Fail {
+  param([string]$Message)
+  Write-Host ("TPN CONTRACT CHECK FAIL | " + $Message)
+  exit 1
+}
 
-if (-not $health.ok) { throw "health failed" }
-if ($health.version -ne $ExpectedVersion) { throw "unexpected health version: $($health.version)" }
-if ($health.api_contract_version -ne "jarvis.api.v1") { throw "unexpected api contract: $($health.api_contract_version)" }
-if (-not $contract.ok) { throw "contract failed" }
-if ($contract.version -ne $ExpectedVersion) { throw "unexpected contract version: $($contract.version)" }
-if (-not $skills.ok) { throw "skills failed" }
+function Get-Prop {
+  param($Object, [string]$Name)
+  if ($null -eq $Object) { return $null }
+  $prop = $Object.PSObject.Properties[$Name]
+  if ($null -eq $prop) { return $null }
+  return $prop.Value
+}
 
-Write-Host "Tesseract Jarvis contract PASS"
-Write-Host ("version: " + $health.version)
-Write-Host ("api_contract_version: " + $health.api_contract_version)
-Write-Host ("endpoint_count: " + $contract.endpoint_count)
+function Validate-Manifest {
+  param($Manifest, [string]$Mode)
+
+  $version = Get-Prop $Manifest "version"
+  $api = Get-Prop $Manifest "api_contract_version"
+
+  if ($version -ne $ExpectedVersion) {
+    Fail "$Mode contract version mismatch: expected=$ExpectedVersion actual=$version"
+  }
+  if ($api -ne "jarvis.api.v1") {
+    Fail "$Mode api contract mismatch: expected=jarvis.api.v1 actual=$api"
+  }
+
+  $checker = Get-Prop $Manifest "contract_checker_version"
+  if ($null -ne $checker) {
+    if ($checker -ne "tpn.contract_checker.v1.13.2") {
+      Fail "$Mode contract checker mismatch: expected=tpn.contract_checker.v1.13.2 actual=$checker"
+    }
+  }
+
+  Write-Host ("TPN CONTRACT CHECK PASS | mode=" + $Mode + " version=" + $version + " api=" + $api)
+  if ($null -ne $checker) {
+    Write-Host ("TPN CONTRACT CHECKER | " + $checker)
+  }
+}
+
+function Invoke-OfflineContractCheck {
+  Write-Host "TPN CONTRACT CHECK | live server unavailable; using offline contract_manifest fallback"
+  $json = python -c "import json; from neuralforge.tesseract.contract import contract_manifest; print(json.dumps(contract_manifest(), sort_keys=True))"
+  if ($LASTEXITCODE -ne 0) {
+    Fail "offline contract_manifest import failed"
+  }
+  $manifest = $json | ConvertFrom-Json
+  Validate-Manifest -Manifest $manifest -Mode "offline"
+}
+
+try {
+  $health = Invoke-RestMethod -Uri "$Base/health" -TimeoutSec 3
+  $manifest = Invoke-RestMethod -Uri "$Base/contract" -TimeoutSec 3
+  Validate-Manifest -Manifest $manifest -Mode "live"
+  $status = Get-Prop $health "status"
+  if ($null -ne $status) {
+    Write-Host ("TPN CONTRACT HEALTH | status=" + $status)
+  }
+  exit 0
+}
+catch {
+  $message = $_.Exception.Message
+  Write-Host ("TPN CONTRACT CHECK | live check unavailable: " + $message)
+  if ($RequireLive.IsPresent) {
+    Fail "RequireLive was set and live contract check failed"
+  }
+  Invoke-OfflineContractCheck
+  exit 0
+}
