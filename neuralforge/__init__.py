@@ -183,3 +183,9 @@ from neuralforge.tesseract import (
 from neuralforge.tesseract import (
     TesseractWarmRuntime,
 )
+
+from neuralforge.tesseract import (
+    CommandVectorizer,
+    TesseractActionPacket,
+    TesseractCommandMind,
+)

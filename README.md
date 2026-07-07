@@ -127,6 +127,21 @@ Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 5. **Verify** — Measures improvement after each action
 6. **Accumulate** — Knowledge base grows with every execution
 
+## Tesseract Pathway Network v0.8
+
+TPN v0.8 adds a governed local command mind.
+
+```text
+CommandVectorizer
+TesseractSkillRegistry
+TesseractActionPacket
+TesseractCommandMind
+POST /command
+```
+
+Plain English commands now route through the weighted local TPN into governed action packets and explicit local skills.
+See [`docs/TESSERACT_PATHWAY_NETWORK_v0_8.md`](./docs/TESSERACT_PATHWAY_NETWORK_v0_8.md).
+
 ## Tesseract Pathway Network v0.7
 
 TPN v0.7 adds a warm low-overhead local daemon for Jarvis-style responsiveness.
