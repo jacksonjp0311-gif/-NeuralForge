@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from neuralforge.tesseract.benchmark import TesseractBenchmarkHarness, record_benchmark_episode
+from neuralforge.tesseract.benchmark import TesseractBenchmarkHarness, record_benchmark_episode, run_full_benchmark
 from neuralforge.tesseract.improvement import TesseractImprovementProposalEngine
 from neuralforge.tesseract.jarvis import JarvisServiceConfig, TesseractJarvisRuntime
 from neuralforge.tesseract.memory_core import TesseractEpisodicMemory
@@ -46,3 +46,9 @@ def test_v1_6_1_improvement_uses_recorded_benchmark_memory(tmp_path):
     assert proposals["memory_used"] is True
     assert proposals["proposal_count"] >= 1
     assert all(p["allowed_to_mutate"] is False for p in proposals["proposals"])
+
+def test_v1_6_1_run_full_benchmark_record_memory(tmp_path, monkeypatch):
+    monkeypatch.chdir(Path(__file__).resolve().parents[1])
+    report = run_full_benchmark(write=False, record_memory=True)
+    assert "memory_episode" in report
+    assert report["memory_episode"]["kind"] == "benchmark"

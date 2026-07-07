@@ -14,5 +14,8 @@ python -m neuralforge.tesseract.benchmark --write --record-memory
 Write-Host "2/3 Consolidating memory..."
 python -c "from neuralforge.tesseract.memory_core import TesseractEpisodicMemory; import json; m=TesseractEpisodicMemory(); print(json.dumps(m.consolidate(), indent=2, sort_keys=True))"
 
+Write-Host "ASSERT benchmark memory episode..."
+python -c "from neuralforge.tesseract.memory_core import TesseractEpisodicMemory; m=TesseractEpisodicMemory(); s=m.consolidate(); assert 'benchmark' in s.get('kinds', {}), s; print('benchmark episodes:', s.get('kinds', {}).get('benchmark'))"
+
 Write-Host "3/3 Running improvement proposals with evidence available..."
 python -m neuralforge.tesseract.improvement --write
