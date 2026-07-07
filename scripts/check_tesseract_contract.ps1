@@ -1,6 +1,6 @@
 param(
   [int]$Port = 8767,
-  [string]$ExpectedVersion = "tpn.v1.8.1"
+  [string]$ExpectedVersion = "tpn.v1.9"
 )
 
 Set-StrictMode -Version 2.0

@@ -127,6 +127,17 @@ Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 5. **Verify** — Measures improvement after each action
 6. **Accumulate** — Knowledge base grows with every execution
 
+## Tesseract Pathway Network v1.9
+
+TPN v1.9 adds the Guarded Multi-Goal Queue.
+
+```text
+active goals -> bounded queue -> one cycle per goal -> stop on block/cap -> queue report
+```
+
+The system can now process a small bounded set of goals without continuous autonomy or mutation authority.
+See [`docs/TESSERACT_PATHWAY_NETWORK_v1_9.md`](./docs/TESSERACT_PATHWAY_NETWORK_v1_9.md).
+
 ## Tesseract Pathway Network v1.8.1
 
 TPN v1.8.1 closes runtime hygiene after v1.8.

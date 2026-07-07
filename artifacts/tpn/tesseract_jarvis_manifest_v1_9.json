@@ -1,0 +1,111 @@
+{
+  "action_packet_version": "tpn.action.v1.0",
+  "api_contract_version": "jarvis.api.v1",
+  "benchmark_version": "tpn.benchmark.v1.4",
+  "claim_boundary": "Local governed Jarvis substrate over weighted TPN. No arbitrary shell execution, no external model call, no autonomous authority.",
+  "cycle_packet_version": "tpn.cycle.v1.3",
+  "endpoint_count": 15,
+  "endpoints": [
+    {
+      "description": "Runtime health and paths.",
+      "method": "GET",
+      "path": "/health"
+    },
+    {
+      "description": "Stable contract manifest.",
+      "method": "GET",
+      "path": "/contract"
+    },
+    {
+      "description": "Explicit local skill manifest.",
+      "method": "GET",
+      "path": "/skills"
+    },
+    {
+      "description": "Explicit integration skill manifest.",
+      "method": "GET",
+      "path": "/integration/skills"
+    },
+    {
+      "description": "Route an English command through TPN.",
+      "method": "POST",
+      "path": "/command"
+    },
+    {
+      "description": "Execute a governed local integration task.",
+      "method": "POST",
+      "path": "/task"
+    },
+    {
+      "description": "Convert English intent into a bounded local task plan.",
+      "method": "POST",
+      "path": "/plan"
+    },
+    {
+      "description": "Execute a bounded task plan through the integration bus.",
+      "method": "POST",
+      "path": "/run_plan"
+    },
+    {
+      "description": "Run one bounded observe-plan-act-report cycle.",
+      "method": "POST",
+      "path": "/cycle"
+    },
+    {
+      "description": "Read recent episodic memory records.",
+      "method": "GET",
+      "path": "/memory/episodes"
+    },
+    {
+      "description": "Search local episodic memory.",
+      "method": "POST",
+      "path": "/memory/episodic/search"
+    },
+    {
+      "description": "Consolidate local episodic memory into a summary.",
+      "method": "POST",
+      "path": "/memory/consolidate"
+    },
+    {
+      "description": "Search local JSONL command memory.",
+      "method": "POST",
+      "path": "/memory/search"
+    },
+    {
+      "description": "Read recent local action ledger entries.",
+      "method": "GET",
+      "path": "/ledger/recent"
+    },
+    {
+      "description": "Search local action ledger entries.",
+      "method": "POST",
+      "path": "/ledger/search"
+    }
+  ],
+  "evidence_loop_version": "tpn.evidence.v1.6.1",
+  "goal_cycle_version": "tpn.goal_cycle.v1.8",
+  "goal_queue_version": "tpn.goal_queue.v1.9",
+  "goal_state_version": "tpn.goal.v1.7",
+  "improvement_version": "tpn.improvement.v1.6",
+  "integration_task_version": "tpn.integration_task.v1.1",
+  "memory_core_version": "tpn.memory.v1.5",
+  "plan_packet_version": "tpn.plan.v1.2",
+  "runtime": "TesseractJarvisRuntime",
+  "runtime_artifact_policy": {
+    "commit": [
+      "source code",
+      "tests",
+      "docs",
+      "stable seed checkpoints intentionally promoted",
+      "stable contract manifest"
+    ],
+    "ignore": [
+      "runtime command memory JSONL",
+      "runtime action ledger JSONL",
+      "demo scratch ledgers",
+      "local process/cache residue"
+    ]
+  },
+  "runtime_hygiene_version": "tpn.runtime_hygiene.v1.8.1",
+  "version": "tpn.v1.9"
+}

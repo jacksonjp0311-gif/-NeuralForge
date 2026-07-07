@@ -218,3 +218,5 @@ from neuralforge.tesseract import TesseractImprovementProposalEngine
 from neuralforge.tesseract import TesseractGoalStateManager
 
 from neuralforge.tesseract import TesseractGoalAwareCycleRunner
+
+from neuralforge.tesseract import TesseractGoalQueueRunner

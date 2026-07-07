@@ -7,7 +7,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
-JARVIS_VERSION = "tpn.v1.8.1"
+JARVIS_VERSION = "tpn.v1.9"
 API_CONTRACT_VERSION = "jarvis.api.v1"
 ACTION_PACKET_VERSION = "tpn.action.v1.0"
 INTEGRATION_TASK_VERSION = "tpn.integration_task.v1.1"
@@ -20,8 +20,9 @@ EVIDENCE_LOOP_VERSION = "tpn.evidence.v1.6.1"
 GOAL_STATE_VERSION = "tpn.goal.v1.7"
 GOAL_CYCLE_VERSION = "tpn.goal_cycle.v1.8"
 RUNTIME_HYGIENE_VERSION = "tpn.runtime_hygiene.v1.8.1"
+GOAL_QUEUE_VERSION = "tpn.goal_queue.v1.9"
 RUNTIME_KIND = "TesseractJarvisRuntime"
-DEFAULT_CONTRACT_PATH = Path("artifacts") / "tpn" / "tesseract_jarvis_manifest_v1_8_1.json"
+DEFAULT_CONTRACT_PATH = Path("artifacts") / "tpn" / "tesseract_jarvis_manifest_v1_9.json"
 
 STABLE_ENDPOINTS = [
     {"method": "GET", "path": "/health", "description": "Runtime health and paths."},
@@ -74,6 +75,7 @@ class TesseractJarvisContract:
     goal_state_version: str = GOAL_STATE_VERSION
     goal_cycle_version: str = GOAL_CYCLE_VERSION
     runtime_hygiene_version: str = RUNTIME_HYGIENE_VERSION
+    goal_queue_version: str = GOAL_QUEUE_VERSION
     endpoint_count: int = len(STABLE_ENDPOINTS)
     claim_boundary: str = (
         "Local governed Jarvis substrate over weighted TPN. "
