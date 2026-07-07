@@ -1,5 +1,6 @@
 param(
-  [int]$Port = 8767
+  [int]$Port = 8767,
+  [string]$ExpectedVersion = "tpn.v1.4"
 )
 
 Set-StrictMode -Version 2.0
@@ -11,10 +12,10 @@ $contract = Invoke-RestMethod "$Base/contract"
 $skills = Invoke-RestMethod "$Base/skills"
 
 if (-not $health.ok) { throw "health failed" }
-if ($health.version -ne "tpn.v1.0") { throw "unexpected health version: $($health.version)" }
+if ($health.version -ne $ExpectedVersion) { throw "unexpected health version: $($health.version)" }
 if ($health.api_contract_version -ne "jarvis.api.v1") { throw "unexpected api contract: $($health.api_contract_version)" }
 if (-not $contract.ok) { throw "contract failed" }
-if ($contract.version -ne "tpn.v1.0") { throw "unexpected contract version: $($contract.version)" }
+if ($contract.version -ne $ExpectedVersion) { throw "unexpected contract version: $($contract.version)" }
 if (-not $skills.ok) { throw "skills failed" }
 
 Write-Host "Tesseract Jarvis contract PASS"

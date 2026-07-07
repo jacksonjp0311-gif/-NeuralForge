@@ -127,6 +127,21 @@ Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 5. **Verify** — Measures improvement after each action
 6. **Accumulate** — Knowledge base grows with every execution
 
+## Tesseract Pathway Network v1.4
+
+TPN v1.4 adds the Intelligence Benchmark Core.
+
+```text
+plan accuracy
+execution success
+safety blocking
+cycle latency
+benchmark report
+benchmark history ledger
+```
+
+See [`docs/TESSERACT_PATHWAY_NETWORK_v1_4.md`](./docs/TESSERACT_PATHWAY_NETWORK_v1_4.md).
+
 ## Tesseract Pathway Network v1.3
 
 TPN v1.3 adds the Observation Cycle Engine.

@@ -95,6 +95,11 @@ __all__ = [
     "TesseractCycleEngine",
     "TesseractCycleObservation",
     "TesseractCycleReport",
+    "BENCHMARK_VERSION",
+    "TesseractBenchmarkCase",
+    "TesseractBenchmarkHarness",
+    "TesseractBenchmarkResult",
+    "default_benchmark_cases",
 ]
 from neuralforge.tesseract.checkpoint import TesseractCheckpointConfig, train_tpn_checkpoint, save_tpn_checkpoint, load_tpn_checkpoint
 from neuralforge.tesseract.mind import TesseractMindCore
@@ -107,3 +112,4 @@ from neuralforge.tesseract.contract import JARVIS_VERSION, API_CONTRACT_VERSION,
 from neuralforge.tesseract.integration import IntegrationSkill, IntegrationTaskPacket, TesseractIntegrationBus
 from neuralforge.tesseract.planner import TesseractPlanStep, TesseractTaskPlan, TesseractTaskPlanner
 from neuralforge.tesseract.cycle import TesseractCycleEngine, TesseractCycleObservation, TesseractCycleReport
+from neuralforge.tesseract.benchmark import BENCHMARK_VERSION, TesseractBenchmarkCase, TesseractBenchmarkHarness, TesseractBenchmarkResult, default_benchmark_cases

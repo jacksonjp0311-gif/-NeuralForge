@@ -50,3 +50,5 @@ artifacts/tpn/*_demo*.jsonl
 artifacts/tpn/*.pid
 artifacts/tpn/*.log
 artifacts/tpn/runtime/*.log
+artifacts/tpn/benchmarks/*.json
+artifacts/tpn/benchmarks/*.jsonl

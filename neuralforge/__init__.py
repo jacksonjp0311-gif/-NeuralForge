@@ -208,3 +208,5 @@ from neuralforge.tesseract import TesseractIntegrationBus
 from neuralforge.tesseract import TesseractTaskPlanner
 
 from neuralforge.tesseract import TesseractCycleEngine
+
+from neuralforge.tesseract import TesseractBenchmarkHarness
