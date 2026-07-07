@@ -202,3 +202,5 @@ from neuralforge.tesseract import (
     ACTION_PACKET_VERSION,
     contract_manifest,
 )
+
+from neuralforge.tesseract import TesseractIntegrationBus

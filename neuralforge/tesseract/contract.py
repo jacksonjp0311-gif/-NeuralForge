@@ -7,17 +7,19 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
-JARVIS_VERSION = "tpn.v1.0"
+JARVIS_VERSION = "tpn.v1.1"
 API_CONTRACT_VERSION = "jarvis.api.v1"
 ACTION_PACKET_VERSION = "tpn.action.v1.0"
 RUNTIME_KIND = "TesseractJarvisRuntime"
-DEFAULT_CONTRACT_PATH = Path("artifacts") / "tpn" / "tesseract_jarvis_manifest_v1_0.json"
+DEFAULT_CONTRACT_PATH = Path("artifacts") / "tpn" / "tesseract_jarvis_manifest_v1_1.json"
 
 STABLE_ENDPOINTS = [
     {"method": "GET", "path": "/health", "description": "Runtime health and paths."},
     {"method": "GET", "path": "/contract", "description": "Stable v1.0 contract manifest."},
     {"method": "GET", "path": "/skills", "description": "Explicit local skill manifest."},
+    {"method": "GET", "path": "/integration/skills", "description": "Explicit integration skill manifest."},
     {"method": "POST", "path": "/command", "description": "Route an English command through TPN."},
+    {"method": "POST", "path": "/task", "description": "Execute a governed local integration task."},
     {"method": "POST", "path": "/memory/search", "description": "Search local JSONL command memory."},
     {"method": "GET", "path": "/ledger/recent", "description": "Read recent local action ledger entries."},
     {"method": "POST", "path": "/ledger/search", "description": "Search local action ledger entries."},

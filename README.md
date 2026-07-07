@@ -127,6 +127,23 @@ Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 5. **Verify** — Measures improvement after each action
 6. **Accumulate** — Knowledge base grows with every execution
 
+## Tesseract Pathway Network v1.1
+
+TPN v1.1 adds the Integration Skill Bus.
+
+```text
+GET /integration/skills
+POST /task
+repo.status
+repo.log
+file.read
+memory.search
+ledger.recent
+```
+
+The Jarvis runtime can now interact with the local repository through explicit whitelisted skills.
+See [`docs/TESSERACT_PATHWAY_NETWORK_v1_1.md`](./docs/TESSERACT_PATHWAY_NETWORK_v1_1.md).
+
 ## Tesseract Pathway Network v1.0.1
 
 TPN v1.0.1 hardens the local Jarvis runtime.

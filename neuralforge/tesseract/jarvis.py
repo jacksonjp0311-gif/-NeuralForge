@@ -1,6 +1,8 @@
+
 """Jarvis-style local service layer for the Tesseract command mind.
 
-v1.0 stabilizes the daily-use contract around the already-built neural core.
+v1.1 adds the Integration Skill Bus: governed local repo/file/memory skills
+behind explicit task packets.
 """
 
 from __future__ import annotations
@@ -24,6 +26,7 @@ from neuralforge.tesseract.contract import (
     write_contract_manifest,
 )
 from neuralforge.tesseract.daemon import DEFAULT_CHECKPOINT, DEFAULT_REPLAY
+from neuralforge.tesseract.integration import TesseractIntegrationBus
 
 DEFAULT_MEMORY = Path("artifacts") / "tpn" / "command_memory.jsonl"
 DEFAULT_LEDGER = Path("artifacts") / "tpn" / "action_ledger_v0_9.jsonl"
@@ -63,6 +66,7 @@ class JarvisServiceConfig:
     ledger_path: str = str(DEFAULT_LEDGER)
     contract_path: str = str(DEFAULT_CONTRACT_PATH)
     map_location: str = "cpu"
+    repo_root: str = "."
 
 
 class TesseractActionLedger:
@@ -70,7 +74,7 @@ class TesseractActionLedger:
         self.path = Path(path)
 
     def append(self, entry: dict[str, Any]) -> None:
-        enriched = {"schema_version": "tpn.action_ledger.v1.0", "created_at_unix": _now(), **entry}
+        enriched = {"schema_version": "tpn.action_ledger.v1.1", "created_at_unix": _now(), **entry}
         _append_jsonl(self.path, enriched)
 
     def recent(self, limit: int = 10) -> list[dict[str, Any]]:
@@ -96,6 +100,11 @@ class TesseractJarvisRuntime:
             map_location=self.config.map_location,
         )
         self.ledger = TesseractActionLedger(self.config.ledger_path)
+        self.integration = TesseractIntegrationBus(
+            repo_root=self.config.repo_root,
+            memory_path=self.config.memory_path,
+            ledger_path=self.config.ledger_path,
+        )
 
     def health(self) -> dict[str, Any]:
         return {
@@ -110,6 +119,7 @@ class TesseractJarvisRuntime:
             "ledger_path": self.config.ledger_path,
             "contract_path": str(self.contract_path),
             "skills": sorted(self.mind.registry.skills.keys()),
+            "integration_skills": sorted(self.integration.skills.keys()),
             "claim_boundary": "Local Jarvis substrate over weighted TPN; no external model call.",
         }
 
@@ -132,6 +142,7 @@ class TesseractJarvisRuntime:
                 }
                 for skill in self.mind.registry.skills.values()
             ],
+            "integration_skills": self.integration.list_skills(),
             "claim_boundary": "Manifest of explicit local skills only.",
         }
 
@@ -150,6 +161,24 @@ class TesseractJarvisRuntime:
             "text": result.get("text"),
             "packet": result.get("packet"),
             "jarvis_latency_ms": elapsed_ms,
+        })
+        return result
+
+    def task(self, skill_id: str, *, params: dict[str, Any] | None = None, allow_mutation: bool = False) -> dict[str, Any]:
+        packet = self.integration.execute(skill_id, params or {}, allow_mutation=allow_mutation)
+        result = {
+            "ok": bool(packet.get("allowed")),
+            "version": JARVIS_VERSION,
+            "api_contract_version": API_CONTRACT_VERSION,
+            "task": packet,
+            "claim_boundary": "Governed local integration task. No arbitrary shell execution.",
+        }
+        self.ledger.append({
+            "kind": "integration_task",
+            "skill_id": skill_id,
+            "params": params or {},
+            "allow_mutation": allow_mutation,
+            "task": packet,
         })
         return result
 
@@ -198,7 +227,7 @@ def _json_response(handler: BaseHTTPRequestHandler, code: int, payload: dict[str
 
 def make_jarvis_handler(runtime: TesseractJarvisRuntime):
     class JarvisHandler(BaseHTTPRequestHandler):
-        server_version = "TesseractJarvisRuntime/1.0"
+        server_version = "TesseractJarvisRuntime/1.1"
 
         def log_message(self, fmt: str, *args: Any) -> None:
             return
@@ -213,7 +242,7 @@ def make_jarvis_handler(runtime: TesseractJarvisRuntime):
             if path == "/contract":
                 _json_response(self, 200, runtime.contract())
                 return
-            if path == "/skills":
+            if path == "/skills" or path == "/integration/skills":
                 _json_response(self, 200, runtime.skills())
                 return
             if path == "/ledger/recent":
@@ -237,6 +266,13 @@ def make_jarvis_handler(runtime: TesseractJarvisRuntime):
                         style=str(payload.get("style", "operator")),
                     ))
                     return
+                if path == "/task":
+                    _json_response(self, 200, runtime.task(
+                        str(payload.get("skill_id", "")),
+                        params=dict(payload.get("params", {})),
+                        allow_mutation=bool(payload.get("allow_mutation", False)),
+                    ))
+                    return
                 if path == "/memory/search":
                     _json_response(self, 200, runtime.memory_search(str(payload.get("query", "")), limit=int(payload.get("limit", 10))))
                     return
@@ -257,6 +293,7 @@ def run_jarvis_server(
     memory_path: str | Path = DEFAULT_MEMORY,
     ledger_path: str | Path = DEFAULT_LEDGER,
     contract_path: str | Path = DEFAULT_CONTRACT_PATH,
+    repo_root: str | Path = ".",
     host: str = "127.0.0.1",
     port: int = 8767,
     map_location: str = "cpu",
@@ -268,6 +305,7 @@ def run_jarvis_server(
         ledger_path=str(ledger_path),
         contract_path=str(contract_path),
         map_location=map_location,
+        repo_root=str(repo_root),
     ))
     server = ThreadingHTTPServer((host, int(port)), make_jarvis_handler(runtime))
     print(json.dumps({
@@ -276,7 +314,7 @@ def run_jarvis_server(
         "version": JARVIS_VERSION,
         "api_contract_version": API_CONTRACT_VERSION,
         "url": f"http://{host}:{port}",
-        "endpoints": ["/health", "/contract", "/skills", "/command", "/memory/search", "/ledger/recent", "/ledger/search"],
+        "endpoints": ["/health", "/contract", "/skills", "/integration/skills", "/command", "/task", "/memory/search", "/ledger/recent", "/ledger/search"],
         "checkpoint": str(checkpoint),
         "contract_path": str(contract_path),
         "claim_boundary": "Local Jarvis service. Stop with Ctrl+C.",
@@ -284,7 +322,7 @@ def run_jarvis_server(
     try:
         server.serve_forever()
     except KeyboardInterrupt:
-        print("\nTPN v1.0 Jarvis service stopped.")
+        print("\nTPN v1.1 Jarvis service stopped.")
 
 
 def main() -> None:
@@ -294,6 +332,7 @@ def main() -> None:
     parser.add_argument("--memory-path", default=str(DEFAULT_MEMORY))
     parser.add_argument("--ledger-path", default=str(DEFAULT_LEDGER))
     parser.add_argument("--contract-path", default=str(DEFAULT_CONTRACT_PATH))
+    parser.add_argument("--repo-root", default=".")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8767)
     parser.add_argument("--map-location", default="cpu")
@@ -301,6 +340,8 @@ def main() -> None:
     parser.add_argument("--command", default="status")
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--allow-mutation", action="store_true")
+    parser.add_argument("--task", default="")
+    parser.add_argument("--params-json", default="{}")
     args = parser.parse_args()
 
     if args.serve:
@@ -310,6 +351,7 @@ def main() -> None:
             memory_path=args.memory_path,
             ledger_path=args.ledger_path,
             contract_path=args.contract_path,
+            repo_root=args.repo_root,
             host=args.host,
             port=args.port,
             map_location=args.map_location,
@@ -323,7 +365,11 @@ def main() -> None:
         ledger_path=args.ledger_path,
         contract_path=args.contract_path,
         map_location=args.map_location,
+        repo_root=args.repo_root,
     ))
+    if args.task:
+        print(json.dumps(runtime.task(args.task, params=json.loads(args.params_json), allow_mutation=args.allow_mutation), indent=2, sort_keys=True))
+        return
     print(json.dumps(runtime.command(args.command, execute=args.execute, allow_mutation=args.allow_mutation), indent=2, sort_keys=True))
 
 

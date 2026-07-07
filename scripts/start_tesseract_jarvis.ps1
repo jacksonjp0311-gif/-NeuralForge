@@ -35,4 +35,4 @@ Write-Host "Contract: $Base/contract"
 Write-Host "Stop: Ctrl+C"
 Write-Host ""
 
-python -c "from neuralforge.tesseract.jarvis import run_jarvis_server; run_jarvis_server(checkpoint=r'artifacts\tpn\tpn_mind_core_v0_6.pt', host='127.0.0.1', port=$Port)"
+python -c "from neuralforge.tesseract.jarvis import run_jarvis_server; run_jarvis_server(checkpoint=r'artifacts\tpn\tpn_mind_core_v0_6.pt', repo_root='.', host='127.0.0.1', port=$Port)"
