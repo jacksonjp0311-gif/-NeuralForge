@@ -127,6 +127,17 @@ Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 5. **Verify** — Measures improvement after each action
 6. **Accumulate** — Knowledge base grows with every execution
 
+## Tesseract Pathway Network v1.15
+
+TPN v1.15 adds the Sandboxed Patch Plan Receipt.
+
+```text
+approved human receipt -> sandbox plan receipt -> required tests + rollback plan
+```
+
+This is planning only. It does not create branches, edit files, apply patches, or grant mutation authority.
+See [`docs/TESSERACT_PATHWAY_NETWORK_v1_15.md`](./docs/TESSERACT_PATHWAY_NETWORK_v1_15.md).
+
 ## Tesseract Pathway Network v1.14
 
 TPN v1.14 adds the Human Approval Ledger.

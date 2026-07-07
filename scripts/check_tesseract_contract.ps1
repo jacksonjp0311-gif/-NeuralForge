@@ -1,6 +1,6 @@
 param(
   [string]$Base = "http://127.0.0.1:8765",
-  [string]$ExpectedVersion = "tpn.v1.14",
+  [string]$ExpectedVersion = "tpn.v1.15",
   [switch]$RequireLive
 )
 
