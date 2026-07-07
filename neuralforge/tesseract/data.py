@@ -1,3 +1,4 @@
+
 """Synthetic datasets for Tesseract Pathway Network training."""
 
 from __future__ import annotations
@@ -28,6 +29,7 @@ class TesseractSample:
     coherence: float
     delta_phi: float
     vertex: str
+    axis_scores: torch.Tensor
 
 
 class SyntheticTesseractRouteDataset(Dataset):
@@ -93,6 +95,7 @@ class SyntheticTesseractRouteDataset(Dataset):
             coherence=float(state.coherence),
             delta_phi=float(state.delta_phi),
             vertex=state.vertex,
+            axis_scores=axes.float(),
         )
 
     def __len__(self) -> int:
@@ -106,6 +109,8 @@ class SyntheticTesseractRouteDataset(Dataset):
             "evidence": torch.tensor(sample.evidence, dtype=torch.long),
             "coherence": torch.tensor(sample.coherence, dtype=torch.float32),
             "delta_phi": torch.tensor(sample.delta_phi, dtype=torch.float32),
+            "vertex": torch.tensor(int(sample.vertex, 2), dtype=torch.long),
+            "axis_scores": sample.axis_scores.float(),
         }
         return sample.x, target
 

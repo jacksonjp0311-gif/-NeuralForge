@@ -1,0 +1,55 @@
+{
+  "artifact": "TesseractMindCore checkpoint",
+  "checkpoint_path": "artifacts/tpn/tpn_mind_core_v0_4.pt",
+  "claim_boundary": "Local synthetic checkpoint for TPN mind-core routing; not world knowledge, AGI, or production safety proof.",
+  "config": {
+    "batch_size": 32,
+    "d_model": 32,
+    "epochs": 2,
+    "input_dim": 16,
+    "lr": 0.003,
+    "num_routes": 5,
+    "samples": 256,
+    "seed": 17,
+    "top_k": 4
+  },
+  "device": "cuda",
+  "final_metrics": {
+    "authority_accuracy": 0.8431372549019608,
+    "claim_boundary": "Synthetic route-governance evaluation only; not a production proof.",
+    "evidence_accuracy": 0.6862745098039216,
+    "loss": 1.9805960327971215,
+    "mean_sparse_ratio": 0.96875,
+    "route_accuracy": 0.9411764705882353,
+    "samples": 51,
+    "vertex_accuracy": 0.43137254901960786
+  },
+  "history": [
+    {
+      "authority_accuracy": 0.803921568627451,
+      "claim_boundary": "Synthetic route-governance evaluation only; not a production proof.",
+      "epoch": 1,
+      "evidence_accuracy": 0.6862745098039216,
+      "loss": 2.8858915263531255,
+      "mean_sparse_ratio": 0.9375,
+      "route_accuracy": 0.7647058823529411,
+      "samples": 51,
+      "train_loss": 3.5028765236459125,
+      "vertex_accuracy": 0.2549019607843137
+    },
+    {
+      "authority_accuracy": 0.8431372549019608,
+      "claim_boundary": "Synthetic route-governance evaluation only; not a production proof.",
+      "epoch": 2,
+      "evidence_accuracy": 0.6862745098039216,
+      "loss": 1.9805960327971215,
+      "mean_sparse_ratio": 0.96875,
+      "route_accuracy": 0.9411764705882353,
+      "samples": 51,
+      "train_loss": 2.573581410617363,
+      "vertex_accuracy": 0.43137254901960786
+    }
+  ],
+  "manifest_path": "artifacts/tpn/tpn_mind_core_v0_4.json",
+  "version": "tpn.v0.4"
+}

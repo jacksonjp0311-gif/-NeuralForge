@@ -149,3 +149,18 @@ from neuralforge.tesseract import (
     evaluate_tpn_model,
     train_tpn_synthetic,
 )
+
+from neuralforge.tesseract import (
+    TesseractSparseDispatcher,
+    build_tesseract_receipts,
+)
+
+from neuralforge.tesseract import (
+    TesseractSparseDispatcher,
+    build_tesseract_receipts,
+    TesseractCheckpointConfig,
+    train_tpn_checkpoint,
+    save_tpn_checkpoint,
+    load_tpn_checkpoint,
+    TesseractMindCore,
+)

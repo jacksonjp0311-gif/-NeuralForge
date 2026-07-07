@@ -127,6 +127,35 @@ Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 5. **Verify** — Measures improvement after each action
 6. **Accumulate** — Knowledge base grows with every execution
 
+## Tesseract Pathway Network v0.4
+
+TPN v0.4 adds durable local training weights and a `TesseractMindCore` runtime wrapper.
+
+```text
+train_tpn_checkpoint()
+load_tpn_checkpoint()
+TesseractMindCore.from_checkpoint()
+artifacts/tpn/tpn_mind_core_v0_4.pt
+artifacts/tpn/tpn_mind_core_v0_4.json
+```
+
+This is the first weight-bearing local mind-core seed. It performs no external calls.
+See [`docs/TESSERACT_PATHWAY_NETWORK_v0_4.md`](./docs/TESSERACT_PATHWAY_NETWORK_v0_4.md).
+
+## Tesseract Pathway Network v0.3
+
+TPN v0.3 upgrades the registered tesseract architecture into a sparse pathway network with vertex-supervised routing, axis-gate loss, and JSON inference receipts.
+
+```text
+TesseractSparseDispatcher
+build_tesseract_receipts()
+vertex_logits / selected_vertex
+topk_indices / topk_weights
+expert_usage / sparse_ratio
+```
+
+See [`docs/TESSERACT_PATHWAY_NETWORK_v0_3.md`](./docs/TESSERACT_PATHWAY_NETWORK_v0_3.md).
+
 ## Tesseract Pathway Network v0.2
 
 TPN v0.2 registers the tesseract router as a NeuralForge architecture family and adds synthetic route-governance training/evaluation.

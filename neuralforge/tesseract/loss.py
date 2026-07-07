@@ -1,3 +1,4 @@
+
 """Compound loss for Tesseract Pathway Network outputs."""
 
 from __future__ import annotations
@@ -33,6 +34,10 @@ def tesseract_compound_loss(
     total = _maybe_ce(total, outputs["route_logits"], targets.get("route"), weights.get("route", 1.0))
     total = _maybe_ce(total, outputs["authority_logits"], targets.get("authority"), weights.get("authority", 0.5))
     total = _maybe_ce(total, outputs["evidence_logits"], targets.get("evidence"), weights.get("evidence", 0.5))
+    if "vertex_logits" in outputs:
+        total = _maybe_ce(total, outputs["vertex_logits"], targets.get("vertex"), weights.get("vertex", 0.35))
+    if "axis_scores" in outputs:
+        total = _maybe_mse(total, outputs["axis_scores"], targets.get("axis_scores"), weights.get("axis", 0.25))
     total = _maybe_mse(total, outputs["coherence"], targets.get("coherence"), weights.get("coherence", 0.25))
     total = _maybe_mse(total, outputs["delta_phi"], targets.get("delta_phi"), weights.get("delta_phi", 0.25))
     return total

@@ -18,7 +18,7 @@ def test_synthetic_tesseract_dataset_shapes():
     ds = SyntheticTesseractRouteDataset(n=16, seed=1)
     x, target = ds[0]
     assert x.shape == (16,)
-    assert set(target.keys()) == {"route", "authority", "evidence", "coherence", "delta_phi"}
+    assert set(target.keys()) == {"route", "authority", "evidence", "coherence", "delta_phi", "vertex", "axis_scores"}
 
 
 def test_tpn_evaluation_metrics():
