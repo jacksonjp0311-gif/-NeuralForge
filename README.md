@@ -127,6 +127,17 @@ Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 5. **Verify** — Measures improvement after each action
 6. **Accumulate** — Knowledge base grows with every execution
 
+## Tesseract Pathway Network v1.10
+
+TPN v1.10 adds the Execution Policy Governor.
+
+```text
+queue plan -> policy decision -> guarded queue run only if allowed -> policy receipt
+```
+
+The system can now gate multi-goal queue execution through explicit risk, budget, and stop-condition policy.
+See [`docs/TESSERACT_PATHWAY_NETWORK_v1_10.md`](./docs/TESSERACT_PATHWAY_NETWORK_v1_10.md).
+
 ## Tesseract Pathway Network v1.9
 
 TPN v1.9 adds the Guarded Multi-Goal Queue.
