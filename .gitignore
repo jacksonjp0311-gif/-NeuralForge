@@ -52,3 +52,5 @@ artifacts/tpn/*.log
 artifacts/tpn/runtime/*.log
 artifacts/tpn/benchmarks/*.json
 artifacts/tpn/benchmarks/*.jsonl
+artifacts/tpn/episodic_memory_v*.jsonl
+artifacts/tpn/episodic_memory_summary_v*.json

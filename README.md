@@ -127,6 +127,20 @@ Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 5. **Verify** — Measures improvement after each action
 6. **Accumulate** — Knowledge base grows with every execution
 
+## Tesseract Pathway Network v1.5
+
+TPN v1.5 adds the Episodic Memory Core.
+
+```text
+GET /memory/episodes
+POST /memory/episodic/search
+POST /memory/consolidate
+TesseractEpisodicMemory
+```
+
+Jarvis can now preserve bounded experiences as local JSONL memory episodes.
+See [`docs/TESSERACT_PATHWAY_NETWORK_v1_5.md`](./docs/TESSERACT_PATHWAY_NETWORK_v1_5.md).
+
 ## Tesseract Pathway Network v1.4
 
 TPN v1.4 adds the Intelligence Benchmark Core.
