@@ -135,3 +135,17 @@ Apache 2.0
 <strong>NeuralForge</strong> — <em>Neural Networks. Forged by Agents.</em><br>
 <a href="https://github.com/jacksonjp0311-gif/-NeuralForge">github.com/jacksonjp0311-gif/-NeuralForge</a>
 </div>
+
+## ðŸ”· Tesseract Pathway Network
+
+NeuralForge now includes an experimental **Tesseract Pathway Network** scaffold for sparse geometric routing across four operational axes:
+
+```text
+Intent -> Evidence -> Authority -> Context
+```
+
+The module lives in `neuralforge/tesseract/` and tests whether routeable geometry can reduce attention pressure while preserving evidence, authority, coherence, and drift signals.
+
+See [`docs/TESSERACT_PATHWAY_NETWORK.md`](./docs/TESSERACT_PATHWAY_NETWORK.md).
+
+Claim boundary: TPN v0.1 is a research scaffold, not a production safety proof, AGI claim, or autonomous authority layer.

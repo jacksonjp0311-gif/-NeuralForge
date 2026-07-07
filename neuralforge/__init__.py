@@ -132,3 +132,13 @@ def quick_build(description: str):
     """
     spec = NeuralForgeSpec.from_description(description)
     return create_model(spec)
+
+# Tesseract Pathway Network
+from neuralforge.tesseract import (
+    TesseractRouter,
+    TesseractPathwayNetwork,
+    TesseractPathwayBlock,
+    AxisScores,
+    build_route_state,
+    validate_tesseract,
+)
