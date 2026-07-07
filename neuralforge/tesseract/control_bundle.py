@@ -237,6 +237,60 @@ class TesseractCompressedControlBundle:
             f.write(json.dumps(report, sort_keys=True) + "\n")
         return {"latest": str(latest_path), "history": str(history_path), "baseline": str(self.baseline_path)}
 
+def summarize_control_bundle_report(result: dict[str, Any]) -> dict[str, Any]:
+    approval = result.get("approval_request", {}) or {}
+    sentinel = result.get("regression_sentinel", {}) or {}
+    receipts = result.get("patch_proposal_receipts", []) or []
+    paths = result.get("paths", {}) or {}
+    stairway = result.get("stairway_result", {}) or {}
+    stairway_report = stairway.get("stairway_report", {}) or {}
+    performance_summary = stairway_report.get("performance_summary", {}) or {}
+    perf_inner = performance_summary.get("summary", {}) or {}
+
+    return {
+        "ok": bool(result.get("ok", False)),
+        "ready_for_human_review": bool(result.get("ready_for_human_review", False)),
+        "regression_status": sentinel.get("status", "unknown"),
+        "regression_reasons_count": len(sentinel.get("reasons", []) or []),
+        "proposal_count": len(receipts),
+        "approval_status": approval.get("status", "unknown"),
+        "approved_by_human": bool(approval.get("approved_by_human", False)),
+        "mutation_allowed": bool(result.get("mutation_allowed", False)),
+        "total_duration_ms": performance_summary.get("total_duration_ms", 0.0),
+        "queue_duration_ms": performance_summary.get("queue_duration_ms", 0.0),
+        "max_skill_duration_ms": perf_inner.get("max_skill_duration_ms", 0.0),
+        "mean_skill_duration_ms": perf_inner.get("mean_skill_duration_ms", 0.0),
+        "warnings_count": len(performance_summary.get("warnings", []) or []),
+        "latest_report": paths.get("latest", ""),
+        "history": paths.get("history", ""),
+        "baseline": paths.get("baseline", ""),
+        "control_bundle_version": result.get("control_bundle_version", CONTROL_BUNDLE_VERSION),
+        "claim_boundary": "Console summary only; full JSON receipts remain on disk.",
+    }
+
+
+def format_control_bundle_summary(result: dict[str, Any]) -> str:
+    s = summarize_control_bundle_report(result)
+    lines = [
+        "CONTROL BUNDLE SUMMARY",
+        f"- ok: {s['ok']}",
+        f"- ready_for_human_review: {s['ready_for_human_review']}",
+        f"- regression: {s['regression_status']} ({s['regression_reasons_count']} reason(s))",
+        f"- proposals: {s['proposal_count']}",
+        f"- approval: {s['approval_status']}",
+        f"- approved_by_human: {s['approved_by_human']}",
+        f"- mutation_allowed: {s['mutation_allowed']}",
+        f"- total_duration_ms: {float(s['total_duration_ms']):.3f}",
+        f"- queue_duration_ms: {float(s['queue_duration_ms']):.3f}",
+        f"- max_skill_duration_ms: {float(s['max_skill_duration_ms']):.3f}",
+        f"- mean_skill_duration_ms: {float(s['mean_skill_duration_ms']):.3f}",
+        f"- warnings: {s['warnings_count']}",
+        f"- report: {s['latest_report']}",
+        f"- history: {s['history']}",
+        f"- baseline: {s['baseline']}",
+        "- boundary: full receipts stored; console output compressed; no mutation authority",
+    ]
+    return "\n".join(lines)
 
 def main() -> None:
     parser = argparse.ArgumentParser()
@@ -244,12 +298,17 @@ def main() -> None:
     parser.add_argument("--events-path", default=str(DEFAULT_GOAL_EVENTS_PATH))
     parser.add_argument("--baseline-path", default=str(DEFAULT_CONTROL_BUNDLE_BASELINE_PATH))
     parser.add_argument("--demo", action="store_true")
+    parser.add_argument("--summary", action="store_true")
     args = parser.parse_args()
 
     performance = build_default_governor(state_path=args.state_path, events_path=args.events_path)
     stairway = TesseractStairwayCompressionGovernor(performance_governor=performance)
     bundle = TesseractCompressedControlBundle(stairway_governor=stairway, baseline_path=args.baseline_path)
-    print(json.dumps(bundle.run_bundle(demo=True), indent=2, sort_keys=True))
+    result = bundle.run_bundle(demo=True)
+    if args.summary:
+        print(format_control_bundle_summary(result))
+        return
+    print(json.dumps(result, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":
