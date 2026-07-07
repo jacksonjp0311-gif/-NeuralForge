@@ -7,13 +7,14 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
-JARVIS_VERSION = "tpn.v1.2"
+JARVIS_VERSION = "tpn.v1.3"
 API_CONTRACT_VERSION = "jarvis.api.v1"
 ACTION_PACKET_VERSION = "tpn.action.v1.0"
 INTEGRATION_TASK_VERSION = "tpn.integration_task.v1.1"
 PLAN_PACKET_VERSION = "tpn.plan.v1.2"
+CYCLE_PACKET_VERSION = "tpn.cycle.v1.3"
 RUNTIME_KIND = "TesseractJarvisRuntime"
-DEFAULT_CONTRACT_PATH = Path("artifacts") / "tpn" / "tesseract_jarvis_manifest_v1_2.json"
+DEFAULT_CONTRACT_PATH = Path("artifacts") / "tpn" / "tesseract_jarvis_manifest_v1_3.json"
 
 STABLE_ENDPOINTS = [
     {"method": "GET", "path": "/health", "description": "Runtime health and paths."},
@@ -24,6 +25,7 @@ STABLE_ENDPOINTS = [
     {"method": "POST", "path": "/task", "description": "Execute a governed local integration task."},
     {"method": "POST", "path": "/plan", "description": "Convert English intent into a bounded local task plan."},
     {"method": "POST", "path": "/run_plan", "description": "Execute a bounded task plan through the integration bus."},
+    {"method": "POST", "path": "/cycle", "description": "Run one bounded observe-plan-act-report cycle."},
     {"method": "POST", "path": "/memory/search", "description": "Search local JSONL command memory."},
     {"method": "GET", "path": "/ledger/recent", "description": "Read recent local action ledger entries."},
     {"method": "POST", "path": "/ledger/search", "description": "Search local action ledger entries."},
@@ -54,6 +56,7 @@ class TesseractJarvisContract:
     action_packet_version: str = ACTION_PACKET_VERSION
     integration_task_version: str = INTEGRATION_TASK_VERSION
     plan_packet_version: str = PLAN_PACKET_VERSION
+    cycle_packet_version: str = CYCLE_PACKET_VERSION
     endpoint_count: int = len(STABLE_ENDPOINTS)
     claim_boundary: str = (
         "Local governed Jarvis substrate over weighted TPN. "

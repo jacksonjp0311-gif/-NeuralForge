@@ -1,6 +1,7 @@
 """Jarvis-style local service layer for the Tesseract command mind.
 
-v1.2 adds bounded task planning over the v1.1 Integration Skill Bus.
+v1.3 adds an Observation Cycle Engine: objective -> plan -> execute -> observe
+-> report, bounded to whitelisted integration skills.
 """
 
 from __future__ import annotations
@@ -23,6 +24,7 @@ from neuralforge.tesseract.contract import (
     load_contract_manifest,
     write_contract_manifest,
 )
+from neuralforge.tesseract.cycle import TesseractCycleEngine
 from neuralforge.tesseract.daemon import DEFAULT_CHECKPOINT, DEFAULT_REPLAY
 from neuralforge.tesseract.integration import TesseractIntegrationBus
 from neuralforge.tesseract.planner import TesseractTaskPlanner
@@ -73,7 +75,7 @@ class TesseractActionLedger:
         self.path = Path(path)
 
     def append(self, entry: dict[str, Any]) -> None:
-        enriched = {"schema_version": "tpn.action_ledger.v1.2", "created_at_unix": _now(), **entry}
+        enriched = {"schema_version": "tpn.action_ledger.v1.3", "created_at_unix": _now(), **entry}
         _append_jsonl(self.path, enriched)
 
     def recent(self, limit: int = 10) -> list[dict[str, Any]]:
@@ -105,6 +107,7 @@ class TesseractJarvisRuntime:
             ledger_path=self.config.ledger_path,
         )
         self.planner = TesseractTaskPlanner(self.integration)
+        self.cycle_engine = TesseractCycleEngine(self.planner)
 
     def health(self) -> dict[str, Any]:
         return {
@@ -121,6 +124,7 @@ class TesseractJarvisRuntime:
             "skills": sorted(self.mind.registry.skills.keys()),
             "integration_skills": sorted(self.integration.skills.keys()),
             "planner": "TesseractTaskPlanner",
+            "cycle_engine": "TesseractCycleEngine",
             "claim_boundary": "Local Jarvis substrate over weighted TPN; no external model call.",
         }
 
@@ -139,6 +143,7 @@ class TesseractJarvisRuntime:
                 for skill in self.mind.registry.skills.values()
             ],
             "integration_skills": self.integration.list_skills(),
+            "cycle_engine": "TesseractCycleEngine",
             "claim_boundary": "Manifest of explicit local skills only.",
         }
 
@@ -171,6 +176,18 @@ class TesseractJarvisRuntime:
         self.ledger.append({"kind": "run_plan", "allow_mutation": allow_mutation, "plan": plan, "execution": execution})
         return answer
 
+    def cycle(self, objective: str, *, execute: bool = True, allow_mutation: bool = False, max_steps: int = 6) -> dict[str, Any]:
+        report = self.cycle_engine.run_cycle(objective, execute=execute, allow_mutation=allow_mutation, max_steps=max_steps)
+        answer = {
+            "ok": bool(report.get("ok")),
+            "version": JARVIS_VERSION,
+            "api_contract_version": API_CONTRACT_VERSION,
+            "cycle": report,
+            "claim_boundary": "One bounded local observe-plan-act-report cycle.",
+        }
+        self.ledger.append({"kind": "cycle", "objective": objective, "execute": execute, "allow_mutation": allow_mutation, "max_steps": max_steps, "cycle": report})
+        return answer
+
     def memory_search(self, query: str, *, limit: int = 10) -> dict[str, Any]:
         q = query.lower().strip()
         rows = _read_jsonl(self.config.memory_path)
@@ -195,7 +212,7 @@ def _json_response(handler: BaseHTTPRequestHandler, code: int, payload: dict[str
 
 def make_jarvis_handler(runtime: TesseractJarvisRuntime):
     class JarvisHandler(BaseHTTPRequestHandler):
-        server_version = "TesseractJarvisRuntime/1.2"
+        server_version = "TesseractJarvisRuntime/1.3"
 
         def log_message(self, fmt: str, *args: Any) -> None:
             return
@@ -230,6 +247,8 @@ def make_jarvis_handler(runtime: TesseractJarvisRuntime):
                     _json_response(self, 200, runtime.plan(str(payload.get("command", "")), execute=bool(payload.get("execute", False)), allow_mutation=bool(payload.get("allow_mutation", False)))); return
                 if path == "/run_plan":
                     _json_response(self, 200, runtime.run_plan(dict(payload.get("plan", {})), allow_mutation=bool(payload.get("allow_mutation", False)))); return
+                if path == "/cycle":
+                    _json_response(self, 200, runtime.cycle(str(payload.get("objective", payload.get("command", ""))), execute=bool(payload.get("execute", True)), allow_mutation=bool(payload.get("allow_mutation", False)), max_steps=int(payload.get("max_steps", 6)))); return
                 if path == "/memory/search":
                     _json_response(self, 200, runtime.memory_search(str(payload.get("query", "")), limit=int(payload.get("limit", 10)))); return
                 if path == "/ledger/search":
@@ -255,11 +274,11 @@ def run_jarvis_server(
 ) -> None:
     runtime = TesseractJarvisRuntime(JarvisServiceConfig(checkpoint=str(checkpoint), replay_path=str(replay_path), memory_path=str(memory_path), ledger_path=str(ledger_path), contract_path=str(contract_path), map_location=map_location, repo_root=str(repo_root)))
     server = ThreadingHTTPServer((host, int(port)), make_jarvis_handler(runtime))
-    print(json.dumps({"ok": True, "runtime": "TesseractJarvisRuntime", "version": JARVIS_VERSION, "api_contract_version": API_CONTRACT_VERSION, "url": f"http://{host}:{port}", "endpoints": ["/health", "/contract", "/skills", "/integration/skills", "/command", "/task", "/plan", "/run_plan", "/memory/search", "/ledger/recent", "/ledger/search"], "checkpoint": str(checkpoint), "contract_path": str(contract_path), "claim_boundary": "Local Jarvis service. Stop with Ctrl+C."}, indent=2, sort_keys=True))
+    print(json.dumps({"ok": True, "runtime": "TesseractJarvisRuntime", "version": JARVIS_VERSION, "api_contract_version": API_CONTRACT_VERSION, "url": f"http://{host}:{port}", "endpoints": ["/health", "/contract", "/skills", "/integration/skills", "/command", "/task", "/plan", "/run_plan", "/cycle", "/memory/search", "/ledger/recent", "/ledger/search"], "checkpoint": str(checkpoint), "contract_path": str(contract_path), "claim_boundary": "Local Jarvis service. Stop with Ctrl+C."}, indent=2, sort_keys=True))
     try:
         server.serve_forever()
     except KeyboardInterrupt:
-        print("\nTPN v1.2 Jarvis service stopped.")
+        print("\nTPN v1.3 Jarvis service stopped.")
 
 
 def main() -> None:
@@ -280,6 +299,8 @@ def main() -> None:
     parser.add_argument("--task", default="")
     parser.add_argument("--params-json", default="{}")
     parser.add_argument("--plan", default="")
+    parser.add_argument("--cycle", default="")
+    parser.add_argument("--max-steps", type=int, default=6)
     args = parser.parse_args()
 
     if args.serve:
@@ -291,6 +312,8 @@ def main() -> None:
         print(json.dumps(runtime.task(args.task, params=json.loads(args.params_json), allow_mutation=args.allow_mutation), indent=2, sort_keys=True)); return
     if args.plan:
         print(json.dumps(runtime.plan(args.plan, execute=args.execute, allow_mutation=args.allow_mutation), indent=2, sort_keys=True)); return
+    if args.cycle:
+        print(json.dumps(runtime.cycle(args.cycle, execute=args.execute, allow_mutation=args.allow_mutation, max_steps=args.max_steps), indent=2, sort_keys=True)); return
     print(json.dumps(runtime.command(args.command, execute=args.execute, allow_mutation=args.allow_mutation), indent=2, sort_keys=True))
 
 

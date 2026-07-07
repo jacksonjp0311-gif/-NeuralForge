@@ -127,6 +127,19 @@ Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 5. **Verify** — Measures improvement after each action
 6. **Accumulate** — Knowledge base grows with every execution
 
+## Tesseract Pathway Network v1.3
+
+TPN v1.3 adds the Observation Cycle Engine.
+
+```text
+POST /cycle
+objective -> plan -> execute -> observe -> report
+TesseractCycleEngine
+```
+
+Jarvis can now run one bounded observe-plan-act-report cycle using whitelisted skills only.
+See [`docs/TESSERACT_PATHWAY_NETWORK_v1_3.md`](./docs/TESSERACT_PATHWAY_NETWORK_v1_3.md).
+
 ## Tesseract Pathway Network v1.2
 
 TPN v1.2 adds bounded task planning over the Integration Skill Bus.

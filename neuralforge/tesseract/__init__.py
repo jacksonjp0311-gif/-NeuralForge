@@ -92,6 +92,9 @@ __all__ = [
     "TesseractPlanStep",
     "TesseractTaskPlan",
     "TesseractTaskPlanner",
+    "TesseractCycleEngine",
+    "TesseractCycleObservation",
+    "TesseractCycleReport",
 ]
 from neuralforge.tesseract.checkpoint import TesseractCheckpointConfig, train_tpn_checkpoint, save_tpn_checkpoint, load_tpn_checkpoint
 from neuralforge.tesseract.mind import TesseractMindCore
@@ -103,3 +106,4 @@ from neuralforge.tesseract.jarvis import JarvisServiceConfig, TesseractActionLed
 from neuralforge.tesseract.contract import JARVIS_VERSION, API_CONTRACT_VERSION, ACTION_PACKET_VERSION, TesseractJarvisContract, contract_manifest, write_contract_manifest, load_contract_manifest
 from neuralforge.tesseract.integration import IntegrationSkill, IntegrationTaskPacket, TesseractIntegrationBus
 from neuralforge.tesseract.planner import TesseractPlanStep, TesseractTaskPlan, TesseractTaskPlanner
+from neuralforge.tesseract.cycle import TesseractCycleEngine, TesseractCycleObservation, TesseractCycleReport
