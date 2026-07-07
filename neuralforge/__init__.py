@@ -195,3 +195,10 @@ from neuralforge.tesseract import (
     TesseractActionLedger,
     TesseractJarvisRuntime,
 )
+
+from neuralforge.tesseract import (
+    JARVIS_VERSION,
+    API_CONTRACT_VERSION,
+    ACTION_PACKET_VERSION,
+    contract_manifest,
+)

@@ -79,6 +79,13 @@ __all__ = [
     "TesseractJarvisRuntime",
     "make_jarvis_handler",
     "run_jarvis_server",
+    "JARVIS_VERSION",
+    "API_CONTRACT_VERSION",
+    "ACTION_PACKET_VERSION",
+    "TesseractJarvisContract",
+    "contract_manifest",
+    "write_contract_manifest",
+    "load_contract_manifest",
 ]
 from neuralforge.tesseract.checkpoint import TesseractCheckpointConfig, train_tpn_checkpoint, save_tpn_checkpoint, load_tpn_checkpoint
 from neuralforge.tesseract.mind import TesseractMindCore
@@ -87,3 +94,4 @@ from neuralforge.tesseract.adaptive import TesseractFeedbackRecord, TesseractRep
 from neuralforge.tesseract.daemon import TesseractWarmRuntime, make_handler, run_server
 from neuralforge.tesseract.command import CommandVectorizer, TesseractActionPacket, TesseractSkillRegistry, TesseractCommandMind, make_command_handler, run_command_server
 from neuralforge.tesseract.jarvis import JarvisServiceConfig, TesseractActionLedger, TesseractJarvisRuntime, make_jarvis_handler, run_jarvis_server
+from neuralforge.tesseract.contract import JARVIS_VERSION, API_CONTRACT_VERSION, ACTION_PACKET_VERSION, TesseractJarvisContract, contract_manifest, write_contract_manifest, load_contract_manifest

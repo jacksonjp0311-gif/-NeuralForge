@@ -70,7 +70,7 @@ class TesseractActionPacket:
     reason: str
     receipt: dict[str, Any]
     result: dict[str, Any] | None = None
-    packet_version: str = "tpn.action.v0.8"
+    packet_version: str = "tpn.action.v1.0"
     claim_boundary: str = "Governed local action packet; not autonomous authority."
 
 
@@ -315,7 +315,7 @@ class TesseractCommandMind:
 
         return {
             "ok": True,
-            "version": "tpn.v0.8",
+            "version": "tpn.v1.0",
             "text": self._english(packet),
             "packet": asdict(packet),
             "runtime": {
@@ -360,7 +360,7 @@ def make_command_handler(mind: TesseractCommandMind):
                 _json_response(self, 200, {
                     "ok": True,
                     "runtime": "TesseractCommandMind",
-                    "version": "tpn.v0.8",
+                    "version": "tpn.v1.0",
                     "skills": sorted(mind.registry.skills.keys()),
                     "claim_boundary": "Local command mind health endpoint.",
                 })
@@ -403,7 +403,7 @@ def run_command_server(
     print(json.dumps({
         "ok": True,
         "runtime": "TesseractCommandMind",
-        "version": "tpn.v0.8",
+        "version": "tpn.v1.0",
         "url": f"http://{host}:{port}",
         "endpoints": ["/health", "/command"],
         "checkpoint": str(checkpoint),

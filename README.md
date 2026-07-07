@@ -127,6 +127,20 @@ Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 5. **Verify** — Measures improvement after each action
 6. **Accumulate** — Knowledge base grows with every execution
 
+## Tesseract Pathway Network v1.0
+
+TPN v1.0 stabilizes the local Jarvis core contract.
+
+```text
+JARVIS_VERSION = tpn.v1.0
+API_CONTRACT_VERSION = jarvis.api.v1
+ACTION_PACKET_VERSION = tpn.action.v1.0
+GET /contract
+```
+
+v1.0 means the service API is stable enough for local tools to build against it.
+See [`docs/TESSERACT_PATHWAY_NETWORK_v1_0.md`](./docs/TESSERACT_PATHWAY_NETWORK_v1_0.md).
+
 ## Tesseract Pathway Network v0.9
 
 TPN v0.9 adds the daily-use Jarvis substrate.

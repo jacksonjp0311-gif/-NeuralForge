@@ -1,8 +1,6 @@
-
 """Jarvis-style local service layer for the Tesseract command mind.
 
-v0.9 adds daily-use infrastructure around the already-built neural core:
-skills listing, memory search, action ledger, and a local service surface.
+v1.0 stabilizes the daily-use contract around the already-built neural core.
 """
 
 from __future__ import annotations
@@ -17,6 +15,14 @@ from typing import Any
 from urllib.parse import parse_qs, urlparse
 
 from neuralforge.tesseract.command import TesseractCommandMind
+from neuralforge.tesseract.contract import (
+    API_CONTRACT_VERSION,
+    DEFAULT_CONTRACT_PATH,
+    JARVIS_VERSION,
+    contract_manifest,
+    load_contract_manifest,
+    write_contract_manifest,
+)
 from neuralforge.tesseract.daemon import DEFAULT_CHECKPOINT, DEFAULT_REPLAY
 
 DEFAULT_MEMORY = Path("artifacts") / "tpn" / "command_memory.jsonl"
@@ -55,21 +61,16 @@ class JarvisServiceConfig:
     replay_path: str = str(DEFAULT_REPLAY)
     memory_path: str = str(DEFAULT_MEMORY)
     ledger_path: str = str(DEFAULT_LEDGER)
+    contract_path: str = str(DEFAULT_CONTRACT_PATH)
     map_location: str = "cpu"
 
 
 class TesseractActionLedger:
-    """Append-only action ledger for all Jarvis command packets."""
-
     def __init__(self, path: str | Path = DEFAULT_LEDGER) -> None:
         self.path = Path(path)
 
     def append(self, entry: dict[str, Any]) -> None:
-        enriched = {
-            "schema_version": "tpn.action_ledger.v0.9",
-            "created_at_unix": _now(),
-            **entry,
-        }
+        enriched = {"schema_version": "tpn.action_ledger.v1.0", "created_at_unix": _now(), **entry}
         _append_jsonl(self.path, enriched)
 
     def recent(self, limit: int = 10) -> list[dict[str, Any]]:
@@ -84,11 +85,10 @@ class TesseractActionLedger:
 
 
 class TesseractJarvisRuntime:
-    """Daily-use local Jarvis substrate around the weighted TPN command mind."""
-
     def __init__(self, config: JarvisServiceConfig | None = None) -> None:
         self.config = config or JarvisServiceConfig()
         self.started_at = time.perf_counter()
+        self.contract_path = write_contract_manifest(self.config.contract_path)
         self.mind = TesseractCommandMind(
             self.config.checkpoint,
             replay_path=self.config.replay_path,
@@ -101,20 +101,28 @@ class TesseractJarvisRuntime:
         return {
             "ok": True,
             "runtime": "TesseractJarvisRuntime",
-            "version": "tpn.v0.9",
+            "version": JARVIS_VERSION,
+            "api_contract_version": API_CONTRACT_VERSION,
             "uptime_seconds": time.perf_counter() - self.started_at,
             "checkpoint": self.config.checkpoint,
             "replay_path": self.config.replay_path,
             "memory_path": self.config.memory_path,
             "ledger_path": self.config.ledger_path,
+            "contract_path": str(self.contract_path),
             "skills": sorted(self.mind.registry.skills.keys()),
             "claim_boundary": "Local Jarvis substrate over weighted TPN; no external model call.",
         }
 
+    def contract(self) -> dict[str, Any]:
+        data = load_contract_manifest(self.contract_path)
+        data["ok"] = True
+        return data
+
     def skills(self) -> dict[str, Any]:
         return {
             "ok": True,
-            "version": "tpn.v0.9",
+            "version": JARVIS_VERSION,
+            "api_contract_version": API_CONTRACT_VERSION,
             "skills": [
                 {
                     "skill_id": skill.skill_id,
@@ -131,6 +139,8 @@ class TesseractJarvisRuntime:
         t0 = time.perf_counter()
         result = self.mind.handle(command, execute=execute, allow_mutation=allow_mutation, style=style)
         elapsed_ms = (time.perf_counter() - t0) * 1000.0
+        result["version"] = JARVIS_VERSION
+        result["api_contract_version"] = API_CONTRACT_VERSION
         result["jarvis_latency_ms"] = elapsed_ms
         self.ledger.append({
             "kind": "command",
@@ -149,7 +159,8 @@ class TesseractJarvisRuntime:
         hits = [row for row in rows if q in json.dumps(row, sort_keys=True).lower()]
         return {
             "ok": True,
-            "version": "tpn.v0.9",
+            "version": JARVIS_VERSION,
+            "api_contract_version": API_CONTRACT_VERSION,
             "query": query,
             "hits": hits[-max(1, int(limit)):],
             "memory_path": self.config.memory_path,
@@ -159,7 +170,8 @@ class TesseractJarvisRuntime:
     def ledger_recent(self, limit: int = 10) -> dict[str, Any]:
         return {
             "ok": True,
-            "version": "tpn.v0.9",
+            "version": JARVIS_VERSION,
+            "api_contract_version": API_CONTRACT_VERSION,
             "entries": self.ledger.recent(limit=limit),
             "ledger_path": self.config.ledger_path,
         }
@@ -167,7 +179,8 @@ class TesseractJarvisRuntime:
     def ledger_search(self, query: str, *, limit: int = 10) -> dict[str, Any]:
         return {
             "ok": True,
-            "version": "tpn.v0.9",
+            "version": JARVIS_VERSION,
+            "api_contract_version": API_CONTRACT_VERSION,
             "query": query,
             "entries": self.ledger.search(query, limit=limit),
             "ledger_path": self.config.ledger_path,
@@ -185,7 +198,7 @@ def _json_response(handler: BaseHTTPRequestHandler, code: int, payload: dict[str
 
 def make_jarvis_handler(runtime: TesseractJarvisRuntime):
     class JarvisHandler(BaseHTTPRequestHandler):
-        server_version = "TesseractJarvisRuntime/0.9"
+        server_version = "TesseractJarvisRuntime/1.0"
 
         def log_message(self, fmt: str, *args: Any) -> None:
             return
@@ -196,6 +209,9 @@ def make_jarvis_handler(runtime: TesseractJarvisRuntime):
             params = parse_qs(parsed.query)
             if path == "/health":
                 _json_response(self, 200, runtime.health())
+                return
+            if path == "/contract":
+                _json_response(self, 200, runtime.contract())
                 return
             if path == "/skills":
                 _json_response(self, 200, runtime.skills())
@@ -222,16 +238,10 @@ def make_jarvis_handler(runtime: TesseractJarvisRuntime):
                     ))
                     return
                 if path == "/memory/search":
-                    _json_response(self, 200, runtime.memory_search(
-                        str(payload.get("query", "")),
-                        limit=int(payload.get("limit", 10)),
-                    ))
+                    _json_response(self, 200, runtime.memory_search(str(payload.get("query", "")), limit=int(payload.get("limit", 10))))
                     return
                 if path == "/ledger/search":
-                    _json_response(self, 200, runtime.ledger_search(
-                        str(payload.get("query", "")),
-                        limit=int(payload.get("limit", 10)),
-                    ))
+                    _json_response(self, 200, runtime.ledger_search(str(payload.get("query", "")), limit=int(payload.get("limit", 10))))
                     return
                 _json_response(self, 404, {"ok": False, "error": f"unknown endpoint: {path}"})
             except Exception as exc:
@@ -246,6 +256,7 @@ def run_jarvis_server(
     replay_path: str | Path = DEFAULT_REPLAY,
     memory_path: str | Path = DEFAULT_MEMORY,
     ledger_path: str | Path = DEFAULT_LEDGER,
+    contract_path: str | Path = DEFAULT_CONTRACT_PATH,
     host: str = "127.0.0.1",
     port: int = 8767,
     map_location: str = "cpu",
@@ -255,22 +266,25 @@ def run_jarvis_server(
         replay_path=str(replay_path),
         memory_path=str(memory_path),
         ledger_path=str(ledger_path),
+        contract_path=str(contract_path),
         map_location=map_location,
     ))
     server = ThreadingHTTPServer((host, int(port)), make_jarvis_handler(runtime))
     print(json.dumps({
         "ok": True,
         "runtime": "TesseractJarvisRuntime",
-        "version": "tpn.v0.9",
+        "version": JARVIS_VERSION,
+        "api_contract_version": API_CONTRACT_VERSION,
         "url": f"http://{host}:{port}",
-        "endpoints": ["/health", "/skills", "/command", "/memory/search", "/ledger/recent", "/ledger/search"],
+        "endpoints": ["/health", "/contract", "/skills", "/command", "/memory/search", "/ledger/recent", "/ledger/search"],
         "checkpoint": str(checkpoint),
+        "contract_path": str(contract_path),
         "claim_boundary": "Local Jarvis service. Stop with Ctrl+C.",
     }, indent=2, sort_keys=True))
     try:
         server.serve_forever()
     except KeyboardInterrupt:
-        print("\nTPN v0.9 Jarvis service stopped.")
+        print("\nTPN v1.0 Jarvis service stopped.")
 
 
 def main() -> None:
@@ -279,6 +293,7 @@ def main() -> None:
     parser.add_argument("--replay-path", default=str(DEFAULT_REPLAY))
     parser.add_argument("--memory-path", default=str(DEFAULT_MEMORY))
     parser.add_argument("--ledger-path", default=str(DEFAULT_LEDGER))
+    parser.add_argument("--contract-path", default=str(DEFAULT_CONTRACT_PATH))
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8767)
     parser.add_argument("--map-location", default="cpu")
@@ -294,6 +309,7 @@ def main() -> None:
             replay_path=args.replay_path,
             memory_path=args.memory_path,
             ledger_path=args.ledger_path,
+            contract_path=args.contract_path,
             host=args.host,
             port=args.port,
             map_location=args.map_location,
@@ -305,6 +321,7 @@ def main() -> None:
         replay_path=args.replay_path,
         memory_path=args.memory_path,
         ledger_path=args.ledger_path,
+        contract_path=args.contract_path,
         map_location=args.map_location,
     ))
     print(json.dumps(runtime.command(args.command, execute=args.execute, allow_mutation=args.allow_mutation), indent=2, sort_keys=True))

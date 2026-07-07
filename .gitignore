@@ -43,3 +43,7 @@ runs/
 .pytest_cache/
 .coverage
 htmlcov/
+artifacts/tpn/action_ledger_v*.jsonl
+artifacts/tpn/command_memory.jsonl
+artifacts/tpn/jarvis_demo_*.jsonl
+artifacts/tpn/*_demo*.jsonl
