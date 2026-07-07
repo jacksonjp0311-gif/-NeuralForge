@@ -142,3 +142,10 @@ from neuralforge.tesseract import (
     build_route_state,
     validate_tesseract,
 )
+
+from neuralforge.tesseract import (
+    SyntheticTesseractRouteDataset,
+    make_tesseract_loaders,
+    evaluate_tpn_model,
+    train_tpn_synthetic,
+)

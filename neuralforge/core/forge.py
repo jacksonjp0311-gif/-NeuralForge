@@ -18,6 +18,26 @@ class ResBlock(nn.Module):
         self.shortcut = nn.Identity()
         if stride != 1 or in_ch != out_ch:
             self.shortcut = nn.Sequential(nn.Conv2d(in_ch, out_ch, 1, stride=stride), nn.BatchNorm2d(out_ch))
+
+    def _build_tesseract(self):
+        from neuralforge.tesseract.network import TesseractPathwayNetwork
+
+        arch = self.spec.architecture
+        dp = self.spec.data_profile
+        if dp is not None and dp.input_shape:
+            input_dim = int(dp.input_shape[0])
+        else:
+            input_dim = int(arch.embedding_dim or arch.width or 16)
+        d_model = int(arch.embedding_dim or arch.width or 64)
+        num_routes = _get_num_classes(dp)
+        top_k = int(arch.expert_capacity or 5)
+        self.tesseract = TesseractPathwayNetwork(
+            input_dim=input_dim,
+            d_model=d_model,
+            num_routes=num_routes,
+            top_k=top_k,
+        )
+
     def forward(self, x):
         return F.gelu(self.bn2(self.conv2(F.gelu(self.bn1(self.conv1(x))))) + self.shortcut(x))
 
@@ -86,6 +106,8 @@ class NeuralForgeModule(nn.Module):
             self._build_mlp_mixer()
         elif family == ArchitectureFamily.KAN:
             self._build_kan()
+        elif family == ArchitectureFamily.TESSERACT:
+            self._build_tesseract()
         else:
             self._build_cnn()
             logger.warning(f"{family.value} fallback to CNN")
@@ -192,7 +214,29 @@ class NeuralForgeModule(nn.Module):
             KANLinear(h, nc),
         )
 
+    def _build_tesseract(self):
+        from neuralforge.tesseract.network import TesseractPathwayNetwork
+
+        arch = self.spec.architecture
+        dp = self.spec.data_profile
+        if dp is not None and getattr(dp, 'input_shape', None):
+            input_dim = int(dp.input_shape[0])
+        else:
+            input_dim = int(getattr(arch, 'embedding_dim', None) or getattr(arch, 'width', None) or 16)
+        d_model = int(getattr(arch, 'embedding_dim', None) or getattr(arch, 'width', None) or 64)
+        num_routes = int(getattr(dp, 'num_classes', None) or 5)
+        top_k = int(getattr(arch, 'expert_capacity', None) or 5)
+        self.tesseract = TesseractPathwayNetwork(
+            input_dim=input_dim,
+            d_model=d_model,
+            num_routes=num_routes,
+            top_k=top_k,
+        )
+
     def forward(self, x):
+        family = self.spec.architecture.family
+        if family == ArchitectureFamily.TESSERACT:
+            return self.tesseract(x)["route_logits"]
         arch = self.spec.architecture
         family = arch.family
         if family == ArchitectureFamily.AUTO:

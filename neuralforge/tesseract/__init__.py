@@ -21,6 +21,10 @@ from neuralforge.tesseract.router import TesseractRouter
 from neuralforge.tesseract.network import TesseractPathwayNetwork, TesseractPathwayBlock
 from neuralforge.tesseract.loss import tesseract_compound_loss
 
+from neuralforge.tesseract.data import SyntheticTesseractRouteDataset, make_tesseract_loaders
+from neuralforge.tesseract.evaluate import evaluate_tpn_model
+from neuralforge.tesseract.train import train_tpn_synthetic
+
 __all__ = [
     "AXES",
     "VERTEX_COUNT",
@@ -40,4 +44,8 @@ __all__ = [
     "TesseractPathwayNetwork",
     "TesseractPathwayBlock",
     "tesseract_compound_loss",
+    "SyntheticTesseractRouteDataset",
+    "make_tesseract_loaders",
+    "evaluate_tpn_model",
+    "train_tpn_synthetic",
 ]

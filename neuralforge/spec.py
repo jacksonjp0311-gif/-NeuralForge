@@ -12,7 +12,7 @@ class ArchitectureFamily(str, Enum):
     RWKV = "rwkv"; LIQUID = "liquid"; DIFFUSION = "diffusion"
     FLOW_MATCHING = "flow_matching"; GRAPH_NN = "graph_nn"
     MIXTURE_OF_EXPERTS = "moe"; KAN = "kan"; RETNET = "retnet"
-    MLP_MIXER = "mlp_mixer"; CUSTOM = "custom"; AUTO = "auto"
+    MLP_MIXER = "mlp_mixer"; TESSERACT = "tesseract"; CUSTOM = "custom"; AUTO = "auto"
 
 
 class Backend(str, Enum):
@@ -319,6 +319,7 @@ class NeuralForgeSpec(BaseModel):
             (ArchitectureFamily.DIFFUSION, ["diffusion", "ddpm"]),
             (ArchitectureFamily.MIXTURE_OF_EXPERTS, ["mixture of experts", "moe"]),
             (ArchitectureFamily.KAN, ["kan", "kolmogorov"]),
+            (ArchitectureFamily.TESSERACT, ["tesseract", "tpn", "pathway network", "pathway routing"]),
             (ArchitectureFamily.LIQUID, ["liquid", "neural ode"]),
         ]
         for arch, keywords in arch_keywords:

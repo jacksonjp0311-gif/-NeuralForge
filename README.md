@@ -127,6 +127,19 @@ Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 5. **Verify** — Measures improvement after each action
 6. **Accumulate** — Knowledge base grows with every execution
 
+## Tesseract Pathway Network v0.2
+
+TPN v0.2 registers the tesseract router as a NeuralForge architecture family and adds synthetic route-governance training/evaluation.
+
+```text
+ArchitectureFamily.TESSERACT
+SyntheticTesseractRouteDataset
+train_tpn_synthetic()
+evaluate_tpn_model()
+```
+
+See [`docs/TESSERACT_PATHWAY_NETWORK_v0_2.md`](./docs/TESSERACT_PATHWAY_NETWORK_v0_2.md).
+
 ## 📄 License
 
 Apache 2.0
