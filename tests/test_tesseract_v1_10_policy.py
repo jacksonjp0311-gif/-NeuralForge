@@ -80,3 +80,34 @@ def test_v1_10_guarded_run_does_not_execute_when_blocked(tmp_path):
     assert result["ok"] is False
     assert result["queue_result"] is None
     assert result["policy_decision"]["allowed"] is False
+
+def test_v1_10_policy_allows_mutation_phrase_inside_stop_conditions(tmp_path):
+    manager, governor = _governor(tmp_path)
+    manager.create_goal(
+        "Safe stop-condition goal",
+        "check repo status and recent git log",
+        ["repo.status", "repo.log"],
+        ["autonomous mutation requested"],
+        risk="medium",
+        max_cycles=1,
+    )
+    plan = governor.queue_runner.plan_queue(max_goals=1)
+    decision = governor.evaluate_queue_plan(plan)
+    assert decision["allowed"] is True
+    assert decision["rejected_goal_ids"] == []
+
+
+def test_v1_10_policy_still_blocks_mutation_language_in_objective(tmp_path):
+    manager, governor = _governor(tmp_path)
+    manager.create_goal(
+        "Unsafe objective",
+        "allow_mutation and change repository code",
+        ["repo.status"],
+        ["human stop"],
+        risk="medium",
+        max_cycles=1,
+    )
+    plan = governor.queue_runner.plan_queue(max_goals=1)
+    decision = governor.evaluate_queue_plan(plan)
+    assert decision["allowed"] is False
+    assert decision["rejected_goal_ids"] == ["goal_0001"]

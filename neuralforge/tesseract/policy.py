@@ -120,11 +120,15 @@ class TesseractExecutionPolicyGovernor:
             if int(goal.get("cycle_count", 0) or 0) >= int(goal.get("max_cycles", 1) or 1):
                 rejected.append(goal_id)
                 reasons.append(f"Goal {goal_id} is already at or above max_cycles.")
-            text = json.dumps(goal, sort_keys=True).lower()
-            if "allow_mutation" in text or "mutation requested" in text:
+            action_text = json.dumps({
+                "title": goal.get("title", ""),
+                "objective": goal.get("objective", ""),
+                "success_criteria": goal.get("success_criteria", []),
+            }, sort_keys=True).lower()
+            if "allow_mutation" in action_text or "mutation requested" in action_text:
                 if not bool(policy.get("allow_mutation", False)):
                     rejected.append(goal_id)
-                    reasons.append(f"Goal {goal_id} contains mutation language but mutation is disabled.")
+                    reasons.append(f"Goal {goal_id} contains mutation language in action-bearing fields but mutation is disabled.")
 
         # De-duplicate while preserving order.
         rejected = list(dict.fromkeys([goal_id for goal_id in rejected if goal_id]))
