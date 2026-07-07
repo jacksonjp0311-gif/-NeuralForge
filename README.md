@@ -127,6 +127,17 @@ Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 5. **Verify** — Measures improvement after each action
 6. **Accumulate** — Knowledge base grows with every execution
 
+## Tesseract Pathway Network v1.7
+
+TPN v1.7 adds the Goal-State Manager.
+
+```text
+bounded goal -> criteria -> stop conditions -> evidence receipts -> status evaluation
+```
+
+The system can now preserve explicit goal state without continuous autonomy or code mutation authority.
+See [`docs/TESSERACT_PATHWAY_NETWORK_v1_7.md`](./docs/TESSERACT_PATHWAY_NETWORK_v1_7.md).
+
 ## Tesseract Pathway Network v1.6.1
 
 TPN v1.6.1 closes the evidence loop.

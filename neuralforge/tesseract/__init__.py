@@ -124,3 +124,4 @@ from neuralforge.tesseract.benchmark import BENCHMARK_VERSION, TesseractBenchmar
 from neuralforge.tesseract.memory_core import MEMORY_CORE_VERSION, TesseractEpisodicMemory, TesseractMemoryEpisode
 from neuralforge.tesseract.improvement import IMPROVEMENT_VERSION, TesseractImprovementProposal, TesseractImprovementProposalEngine, run_improvement_proposals
 from neuralforge.tesseract.benchmark import record_benchmark_episode
+from neuralforge.tesseract.goal_state import GOAL_STATE_VERSION, TesseractGoal, TesseractGoalEvidence, TesseractGoalStateManager

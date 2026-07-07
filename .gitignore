@@ -58,3 +58,6 @@ artifacts/tpn/improvement/*.json
 artifacts/tpn/improvement/*.jsonl
 artifacts/tpn/evidence/*.json
 artifacts/tpn/evidence/*.jsonl
+artifacts/tpn/goals_state_v*.json
+artifacts/tpn/goal_events_v*.jsonl
+artifacts/tpn/goal_summary_v*.json
