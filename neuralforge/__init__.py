@@ -226,3 +226,5 @@ from neuralforge.tesseract import TesseractExecutionPolicyGovernor
 from neuralforge.tesseract import TesseractPerformanceTelemetryGovernor
 
 from neuralforge.tesseract import TesseractStairwayCompressionGovernor
+
+from neuralforge.tesseract import TesseractCompressedControlBundle

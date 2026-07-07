@@ -127,6 +127,17 @@ Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 5. **Verify** — Measures improvement after each action
 6. **Accumulate** — Knowledge base grows with every execution
 
+## Tesseract Pathway Network v1.13-compressed
+
+TPN v1.13-compressed adds the Compressed Control Bundle.
+
+```text
+drift/regression sentinel + patch proposal receipts + human approval gate
+```
+
+The system can now produce approval-required patch proposal receipts while preserving `mutation_allowed=false`.
+See [`docs/TESSERACT_PATHWAY_NETWORK_v1_13_COMPRESSED.md`](./docs/TESSERACT_PATHWAY_NETWORK_v1_13_COMPRESSED.md).
+
 ## Tesseract Pathway Network v1.12
 
 TPN v1.12 adds the Stairway Compression Governor.

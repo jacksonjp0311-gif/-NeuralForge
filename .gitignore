@@ -72,3 +72,6 @@ artifacts/tpn/performance_report_v*.json
 artifacts/tpn/performance_history_v*.jsonl
 artifacts/tpn/stairway_report_v*.json
 artifacts/tpn/stairway_history_v*.jsonl
+artifacts/tpn/control_bundle_report_v*.json
+artifacts/tpn/control_bundle_history_v*.jsonl
+artifacts/tpn/control_bundle_baseline_v*.json
