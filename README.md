@@ -127,6 +127,17 @@ Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 5. **Verify** — Measures improvement after each action
 6. **Accumulate** — Knowledge base grows with every execution
 
+## Tesseract Pathway Network v1.14
+
+TPN v1.14 adds the Human Approval Ledger.
+
+```text
+pending proposals -> explicit approve/reject -> approval receipt -> ledger append
+```
+
+Approval records a human decision but does not apply patches or grant mutation authority.
+See [`docs/TESSERACT_PATHWAY_NETWORK_v1_14.md`](./docs/TESSERACT_PATHWAY_NETWORK_v1_14.md).
+
 ## Tesseract Pathway Network v1.13.2
 
 TPN v1.13.2 closes the contract checker operational wound.

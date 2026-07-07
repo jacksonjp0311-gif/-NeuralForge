@@ -7,7 +7,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
-JARVIS_VERSION = "tpn.v1.13.2"
+JARVIS_VERSION = "tpn.v1.14"
 API_CONTRACT_VERSION = "jarvis.api.v1"
 ACTION_PACKET_VERSION = "tpn.action.v1.0"
 INTEGRATION_TASK_VERSION = "tpn.integration_task.v1.1"
@@ -27,8 +27,9 @@ STAIRWAY_VERSION = "tpn.stairway.v1.12"
 CONTROL_BUNDLE_VERSION = "tpn.control_bundle.v1.13"
 RECEIPT_COMPRESSION_VERSION = "tpn.receipt_compression.v1.13.1"
 CONTRACT_CHECKER_VERSION = "tpn.contract_checker.v1.13.2"
+APPROVAL_VERSION = "tpn.approval.v1.14"
 RUNTIME_KIND = "TesseractJarvisRuntime"
-DEFAULT_CONTRACT_PATH = Path("artifacts") / "tpn" / "tesseract_jarvis_manifest_v1_13_2.json"
+DEFAULT_CONTRACT_PATH = Path("artifacts") / "tpn" / "tesseract_jarvis_manifest_v1_14.json"
 
 STABLE_ENDPOINTS = [
     {"method": "GET", "path": "/health", "description": "Runtime health and paths."},
@@ -88,6 +89,7 @@ class TesseractJarvisContract:
     control_bundle_version: str = CONTROL_BUNDLE_VERSION
     receipt_compression_version: str = RECEIPT_COMPRESSION_VERSION
     contract_checker_version: str = CONTRACT_CHECKER_VERSION
+    approval_version: str = APPROVAL_VERSION
     endpoint_count: int = len(STABLE_ENDPOINTS)
     claim_boundary: str = (
         "Local governed Jarvis substrate over weighted TPN. "
