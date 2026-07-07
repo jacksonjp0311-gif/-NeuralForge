@@ -127,6 +127,21 @@ Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 5. **Verify** — Measures improvement after each action
 6. **Accumulate** — Knowledge base grows with every execution
 
+## Tesseract Pathway Network v0.6
+
+TPN v0.6 adds adaptive local replay learning.
+
+```text
+TesseractReplayLedger
+append_operator_feedback()
+seed_replay_from_synthetic()
+train_tpn_from_replay()
+artifacts/tpn/tpn_mind_core_v0_6.pt
+```
+
+This creates a controlled self-learning path through approved local replay records.
+See [`docs/TESSERACT_PATHWAY_NETWORK_v0_6.md`](./docs/TESSERACT_PATHWAY_NETWORK_v0_6.md).
+
 ## Tesseract Pathway Network v0.5
 
 TPN v0.5 adds local English communication from receipts.

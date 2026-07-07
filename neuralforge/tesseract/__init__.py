@@ -60,7 +60,13 @@ __all__ = [
     "receipts_to_english",
     "outputs_to_english",
     "TesseractEnglishAdapter",
+    "TesseractFeedbackRecord",
+    "TesseractReplayLedger",
+    "append_operator_feedback",
+    "seed_replay_from_synthetic",
+    "train_tpn_from_replay",
 ]
 from neuralforge.tesseract.checkpoint import TesseractCheckpointConfig, train_tpn_checkpoint, save_tpn_checkpoint, load_tpn_checkpoint
 from neuralforge.tesseract.mind import TesseractMindCore
 from neuralforge.tesseract.communication import receipt_to_english, receipts_to_english, outputs_to_english, TesseractEnglishAdapter
+from neuralforge.tesseract.adaptive import TesseractFeedbackRecord, TesseractReplayLedger, append_operator_feedback, seed_replay_from_synthetic, train_tpn_from_replay

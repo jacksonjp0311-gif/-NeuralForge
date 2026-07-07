@@ -1,0 +1,46 @@
+{
+  "approved_records": 128,
+  "artifact": "TesseractMindCore adaptive checkpoint",
+  "base_checkpoint": "artifacts/tpn/tpn_mind_core_v0_4.pt",
+  "batch_size": 32,
+  "checkpoint_path": "artifacts/tpn/tpn_mind_core_v0_6.pt",
+  "claim_boundary": "Adaptive local replay training from approved records; not uncontrolled self-modification or autonomous authority.",
+  "config": {
+    "batch_size": 32,
+    "d_model": 32,
+    "epochs": 2,
+    "input_dim": 16,
+    "lr": 0.003,
+    "num_routes": 5,
+    "samples": 256,
+    "seed": 17,
+    "top_k": 4
+  },
+  "device": "cuda",
+  "epochs": 2,
+  "history": [
+    {
+      "approved_records": 128,
+      "epoch": 1,
+      "train_loss": 1.9313285946846008
+    },
+    {
+      "approved_records": 128,
+      "epoch": 2,
+      "train_loss": 1.7419008612632751
+    }
+  ],
+  "lr": 0.001,
+  "metrics": {
+    "authority_accuracy": 0.96875,
+    "claim_boundary": "Synthetic route-governance evaluation only; not a production proof.",
+    "evidence_accuracy": 0.84375,
+    "loss": 1.6323207318782806,
+    "mean_sparse_ratio": 1.0,
+    "route_accuracy": 0.984375,
+    "samples": 128,
+    "vertex_accuracy": 0.609375
+  },
+  "replay_path": "artifacts/tpn/replay/tpn_replay_v0_6.jsonl",
+  "version": "tpn.v0.6"
+}

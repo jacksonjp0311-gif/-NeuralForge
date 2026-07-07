@@ -171,3 +171,11 @@ from neuralforge.tesseract import (
     outputs_to_english,
     TesseractEnglishAdapter,
 )
+
+from neuralforge.tesseract import (
+    TesseractFeedbackRecord,
+    TesseractReplayLedger,
+    append_operator_feedback,
+    seed_replay_from_synthetic,
+    train_tpn_from_replay,
+)
