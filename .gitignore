@@ -68,3 +68,5 @@ artifacts/tpn/goal_queue_history_v*.jsonl
 artifacts/tpn/policy_config_v*.json
 artifacts/tpn/policy_report_v*.json
 artifacts/tpn/policy_history_v*.jsonl
+artifacts/tpn/performance_report_v*.json
+artifacts/tpn/performance_history_v*.jsonl

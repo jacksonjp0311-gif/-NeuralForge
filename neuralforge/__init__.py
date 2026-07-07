@@ -222,3 +222,5 @@ from neuralforge.tesseract import TesseractGoalAwareCycleRunner
 from neuralforge.tesseract import TesseractGoalQueueRunner
 
 from neuralforge.tesseract import TesseractExecutionPolicyGovernor
+
+from neuralforge.tesseract import TesseractPerformanceTelemetryGovernor

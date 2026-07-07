@@ -127,6 +127,17 @@ Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 5. **Verify** — Measures improvement after each action
 6. **Accumulate** — Knowledge base grows with every execution
 
+## Tesseract Pathway Network v1.11
+
+TPN v1.11 adds the Performance Telemetry Governor.
+
+```text
+policy-approved queue -> timing receipts -> threshold evaluation -> performance report
+```
+
+The system can now measure its local cognitive reflex speed and detect latency regressions.
+See [`docs/TESSERACT_PATHWAY_NETWORK_v1_11.md`](./docs/TESSERACT_PATHWAY_NETWORK_v1_11.md).
+
 ## Tesseract Pathway Network v1.10
 
 TPN v1.10 adds the Execution Policy Governor.
