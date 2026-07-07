@@ -127,6 +127,17 @@ Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 5. **Verify** — Measures improvement after each action
 6. **Accumulate** — Knowledge base grows with every execution
 
+## Tesseract Pathway Network v1.12
+
+TPN v1.12 adds the Stairway Compression Governor.
+
+```text
+performance probe -> drift judgment -> proposal receipts -> approval requirement
+```
+
+The system can now compress safe adjacent control layers into one governed next-bundle recommendation.
+See [`docs/TESSERACT_PATHWAY_NETWORK_v1_12.md`](./docs/TESSERACT_PATHWAY_NETWORK_v1_12.md).
+
 ## Tesseract Pathway Network v1.11
 
 TPN v1.11 adds the Performance Telemetry Governor.

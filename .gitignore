@@ -70,3 +70,5 @@ artifacts/tpn/policy_report_v*.json
 artifacts/tpn/policy_history_v*.jsonl
 artifacts/tpn/performance_report_v*.json
 artifacts/tpn/performance_history_v*.jsonl
+artifacts/tpn/stairway_report_v*.json
+artifacts/tpn/stairway_history_v*.jsonl

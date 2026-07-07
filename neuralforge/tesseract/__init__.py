@@ -129,3 +129,4 @@ from neuralforge.tesseract.goal_cycle import GOAL_CYCLE_VERSION, TesseractGoalAw
 from neuralforge.tesseract.goal_queue import GOAL_QUEUE_VERSION, TesseractGoalQueueReport, TesseractGoalQueueRunner
 from neuralforge.tesseract.policy import POLICY_VERSION, TesseractExecutionPolicyGovernor, TesseractPolicyDecision
 from neuralforge.tesseract.performance import PERFORMANCE_VERSION, TesseractPerformanceReport, TesseractPerformanceTelemetryGovernor, TesseractSkillLatency
+from neuralforge.tesseract.stairway import STAIRWAY_VERSION, TesseractStairwayCompressionGovernor, TesseractStairwayProposal, TesseractStairwayReport
