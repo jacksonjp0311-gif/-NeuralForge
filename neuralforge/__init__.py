@@ -164,3 +164,10 @@ from neuralforge.tesseract import (
     load_tpn_checkpoint,
     TesseractMindCore,
 )
+
+from neuralforge.tesseract import (
+    receipt_to_english,
+    receipts_to_english,
+    outputs_to_english,
+    TesseractEnglishAdapter,
+)

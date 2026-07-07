@@ -127,6 +127,19 @@ Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 5. **Verify** — Measures improvement after each action
 6. **Accumulate** — Knowledge base grows with every execution
 
+## Tesseract Pathway Network v0.5
+
+TPN v0.5 adds local English communication from receipts.
+
+```text
+receipt_to_english()
+outputs_to_english()
+TesseractEnglishAdapter
+```
+
+This is deterministic local English, not an external language model call.
+See [`docs/TESSERACT_PATHWAY_NETWORK_v0_5.md`](./docs/TESSERACT_PATHWAY_NETWORK_v0_5.md).
+
 ## Tesseract Pathway Network v0.4
 
 TPN v0.4 adds durable local training weights and a `TesseractMindCore` runtime wrapper.
