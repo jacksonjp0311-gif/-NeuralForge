@@ -127,6 +127,20 @@ Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 5. **Verify** — Measures improvement after each action
 6. **Accumulate** — Knowledge base grows with every execution
 
+## Tesseract Pathway Network v0.7
+
+TPN v0.7 adds a warm low-overhead local daemon for Jarvis-style responsiveness.
+
+```text
+TesseractWarmRuntime
+GET /health
+POST /think
+POST /feedback
+```
+
+The checkpoint loads once and remains resident, so local systems can call the geometric mind core without paying cold-start every request.
+See [`docs/TESSERACT_PATHWAY_NETWORK_v0_7.md`](./docs/TESSERACT_PATHWAY_NETWORK_v0_7.md).
+
 ## Tesseract Pathway Network v0.6
 
 TPN v0.6 adds adaptive local replay learning.
