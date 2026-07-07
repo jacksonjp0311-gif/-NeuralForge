@@ -11,6 +11,15 @@ from typing import Any
 
 import torch
 
+
+def _torch_load_local_checkpoint(path, *, map_location=None):
+    """Load trusted local TPN checkpoints without PyTorch's weights_only FutureWarning."""
+    try:
+        return torch.load(path, map_location=map_location, weights_only=True)
+    except TypeError:
+        return torch.load(path, map_location=map_location)
+
+
 from neuralforge.tesseract.data import make_tesseract_loaders
 from neuralforge.tesseract.evaluate import evaluate_tpn_model
 from neuralforge.tesseract.loss import tesseract_compound_loss
@@ -70,7 +79,7 @@ def write_manifest(path: str | Path, data: dict[str, Any]) -> Path:
 
 def load_tpn_checkpoint(path: str | Path, *, map_location: str | torch.device = "cpu") -> tuple[TesseractPathwayNetwork, dict[str, Any]]:
     path = Path(path)
-    payload = torch.load(path, map_location=map_location)
+    payload = _torch_load_local_checkpoint(path, map_location=map_location)
     config = TesseractCheckpointConfig(**payload["config"])
     model = TesseractPathwayNetwork(
         input_dim=config.input_dim,

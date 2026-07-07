@@ -127,6 +127,20 @@ Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 5. **Verify** — Measures improvement after each action
 6. **Accumulate** — Knowledge base grows with every execution
 
+## Tesseract Pathway Network v1.0.1
+
+TPN v1.0.1 hardens the local Jarvis runtime.
+
+```text
+safe local checkpoint loading
+launcher warning reduction
+port conflict guard
+status script
+improved stop script
+```
+
+See [`docs/TESSERACT_PATHWAY_NETWORK_v1_0_1.md`](./docs/TESSERACT_PATHWAY_NETWORK_v1_0_1.md).
+
 ## Tesseract Pathway Network v1.0
 
 TPN v1.0 stabilizes the local Jarvis core contract.

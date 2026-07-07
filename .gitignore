@@ -47,3 +47,6 @@ artifacts/tpn/action_ledger_v*.jsonl
 artifacts/tpn/command_memory.jsonl
 artifacts/tpn/jarvis_demo_*.jsonl
 artifacts/tpn/*_demo*.jsonl
+artifacts/tpn/*.pid
+artifacts/tpn/*.log
+artifacts/tpn/runtime/*.log
