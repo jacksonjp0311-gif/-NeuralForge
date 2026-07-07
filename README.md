@@ -127,6 +127,23 @@ Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 5. **Verify** — Measures improvement after each action
 6. **Accumulate** — Knowledge base grows with every execution
 
+## Tesseract Pathway Network v0.9
+
+TPN v0.9 adds the daily-use Jarvis substrate.
+
+```text
+TesseractJarvisRuntime
+TesseractActionLedger
+GET /skills
+POST /memory/search
+GET /ledger/recent
+POST /ledger/search
+scripts/start_tesseract_jarvis.ps1
+```
+
+The command mind now has a service wrapper, skill manifest, memory search, and action ledger.
+See [`docs/TESSERACT_PATHWAY_NETWORK_v0_9.md`](./docs/TESSERACT_PATHWAY_NETWORK_v0_9.md).
+
 ## Tesseract Pathway Network v0.8
 
 TPN v0.8 adds a governed local command mind.

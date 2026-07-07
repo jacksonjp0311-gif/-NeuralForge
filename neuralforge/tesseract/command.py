@@ -275,7 +275,10 @@ class TesseractCommandMind:
         skill = self.registry.choose(command)
 
         blocked = False
-        reason = "Allowed: local non-mutating skill."
+        if skill.mutates:
+            reason = "Allowed: explicit local mutation permission was provided."
+        else:
+            reason = "Allowed: local non-mutating skill."
         if skill.mutates and not allow_mutation:
             blocked = True
             reason = "Blocked: skill mutates local state and allow_mutation was false."
