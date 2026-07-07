@@ -273,7 +273,7 @@ class TesseractGoalStateManager:
             return "Review blocked goals before adding autonomy."
         if active:
             return "Run bounded evidence cycles against active goals; do not exceed max_cycles without review."
-        return "No active blockers; next layer may add goal-aware cycle selection."
+        return "No active blockers; goal-aware cycle selection is available. Next layer may add guarded multi-goal queueing."
 
 
 def main() -> None:

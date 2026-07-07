@@ -8,7 +8,7 @@ $ErrorActionPreference = "Stop"
 Set-Location $RepoRoot
 
 Write-Host "TPN v1.8 goal-aware cycle demo..."
-python -m neuralforge.tesseract.goal_cycle --demo
+python -c "import sys; from neuralforge.tesseract.goal_cycle import main; sys.argv=['goal_cycle','--demo']; main()"
 
 Write-Host "TPN v1.8 goal-aware cycle report..."
 Get-Content .\artifacts\tpn\goal_cycle_report_v1_8_latest.json -Raw

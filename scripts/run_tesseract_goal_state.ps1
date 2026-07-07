@@ -8,7 +8,7 @@ $ErrorActionPreference = "Stop"
 Set-Location $RepoRoot
 
 Write-Host "TPN v1.7 goal-state manager demo..."
-python -m neuralforge.tesseract.goal_state --demo
+python -c "import sys; from neuralforge.tesseract.goal_state import main; sys.argv=['goal_state','--demo']; main()"
 
 Write-Host "TPN v1.7 goal-state summary..."
-python -m neuralforge.tesseract.goal_state --summary
+python -c "import sys; from neuralforge.tesseract.goal_state import main; sys.argv=['goal_state','--summary']; main()"

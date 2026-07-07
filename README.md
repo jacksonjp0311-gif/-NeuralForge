@@ -127,6 +127,18 @@ Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 5. **Verify** — Measures improvement after each action
 6. **Accumulate** — Knowledge base grows with every execution
 
+## Tesseract Pathway Network v1.8.1
+
+TPN v1.8.1 closes runtime hygiene after v1.8.
+
+```text
+remove runpy warning
++ update stale goal-state recommendation
++ preserve one-cycle stop boundary
+```
+
+See [`docs/TESSERACT_PATHWAY_NETWORK_v1_8_1.md`](./docs/TESSERACT_PATHWAY_NETWORK_v1_8_1.md).
+
 ## Tesseract Pathway Network v1.8
 
 TPN v1.8 adds Goal-Aware Cycle Selection.
