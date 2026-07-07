@@ -127,6 +127,20 @@ Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 5. **Verify** — Measures improvement after each action
 6. **Accumulate** — Knowledge base grows with every execution
 
+## Tesseract Pathway Network v1.2
+
+TPN v1.2 adds bounded task planning over the Integration Skill Bus.
+
+```text
+POST /plan
+POST /run_plan
+TesseractTaskPlanner
+TesseractTaskPlan
+```
+
+Jarvis can now convert English intent into explicit local task plans and execute them through whitelisted skills only.
+See [`docs/TESSERACT_PATHWAY_NETWORK_v1_2.md`](./docs/TESSERACT_PATHWAY_NETWORK_v1_2.md).
+
 ## Tesseract Pathway Network v1.1
 
 TPN v1.1 adds the Integration Skill Bus.

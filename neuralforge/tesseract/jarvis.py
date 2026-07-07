@@ -1,8 +1,6 @@
-
 """Jarvis-style local service layer for the Tesseract command mind.
 
-v1.1 adds the Integration Skill Bus: governed local repo/file/memory skills
-behind explicit task packets.
+v1.2 adds bounded task planning over the v1.1 Integration Skill Bus.
 """
 
 from __future__ import annotations
@@ -27,6 +25,7 @@ from neuralforge.tesseract.contract import (
 )
 from neuralforge.tesseract.daemon import DEFAULT_CHECKPOINT, DEFAULT_REPLAY
 from neuralforge.tesseract.integration import TesseractIntegrationBus
+from neuralforge.tesseract.planner import TesseractTaskPlanner
 
 DEFAULT_MEMORY = Path("artifacts") / "tpn" / "command_memory.jsonl"
 DEFAULT_LEDGER = Path("artifacts") / "tpn" / "action_ledger_v0_9.jsonl"
@@ -74,7 +73,7 @@ class TesseractActionLedger:
         self.path = Path(path)
 
     def append(self, entry: dict[str, Any]) -> None:
-        enriched = {"schema_version": "tpn.action_ledger.v1.1", "created_at_unix": _now(), **entry}
+        enriched = {"schema_version": "tpn.action_ledger.v1.2", "created_at_unix": _now(), **entry}
         _append_jsonl(self.path, enriched)
 
     def recent(self, limit: int = 10) -> list[dict[str, Any]]:
@@ -105,6 +104,7 @@ class TesseractJarvisRuntime:
             memory_path=self.config.memory_path,
             ledger_path=self.config.ledger_path,
         )
+        self.planner = TesseractTaskPlanner(self.integration)
 
     def health(self) -> dict[str, Any]:
         return {
@@ -120,6 +120,7 @@ class TesseractJarvisRuntime:
             "contract_path": str(self.contract_path),
             "skills": sorted(self.mind.registry.skills.keys()),
             "integration_skills": sorted(self.integration.skills.keys()),
+            "planner": "TesseractTaskPlanner",
             "claim_boundary": "Local Jarvis substrate over weighted TPN; no external model call.",
         }
 
@@ -134,12 +135,7 @@ class TesseractJarvisRuntime:
             "version": JARVIS_VERSION,
             "api_contract_version": API_CONTRACT_VERSION,
             "skills": [
-                {
-                    "skill_id": skill.skill_id,
-                    "description": skill.description,
-                    "risk": skill.risk,
-                    "mutates": skill.mutates,
-                }
+                {"skill_id": skill.skill_id, "description": skill.description, "risk": skill.risk, "mutates": skill.mutates}
                 for skill in self.mind.registry.skills.values()
             ],
             "integration_skills": self.integration.list_skills(),
@@ -153,67 +149,39 @@ class TesseractJarvisRuntime:
         result["version"] = JARVIS_VERSION
         result["api_contract_version"] = API_CONTRACT_VERSION
         result["jarvis_latency_ms"] = elapsed_ms
-        self.ledger.append({
-            "kind": "command",
-            "command": command,
-            "execute": execute,
-            "allow_mutation": allow_mutation,
-            "text": result.get("text"),
-            "packet": result.get("packet"),
-            "jarvis_latency_ms": elapsed_ms,
-        })
+        self.ledger.append({"kind": "command", "command": command, "execute": execute, "allow_mutation": allow_mutation, "text": result.get("text"), "packet": result.get("packet"), "jarvis_latency_ms": elapsed_ms})
         return result
 
     def task(self, skill_id: str, *, params: dict[str, Any] | None = None, allow_mutation: bool = False) -> dict[str, Any]:
         packet = self.integration.execute(skill_id, params or {}, allow_mutation=allow_mutation)
-        result = {
-            "ok": bool(packet.get("allowed")),
-            "version": JARVIS_VERSION,
-            "api_contract_version": API_CONTRACT_VERSION,
-            "task": packet,
-            "claim_boundary": "Governed local integration task. No arbitrary shell execution.",
-        }
-        self.ledger.append({
-            "kind": "integration_task",
-            "skill_id": skill_id,
-            "params": params or {},
-            "allow_mutation": allow_mutation,
-            "task": packet,
-        })
+        result = {"ok": bool(packet.get("allowed")), "version": JARVIS_VERSION, "api_contract_version": API_CONTRACT_VERSION, "task": packet, "claim_boundary": "Governed local integration task. No arbitrary shell execution."}
+        self.ledger.append({"kind": "integration_task", "skill_id": skill_id, "params": params or {}, "allow_mutation": allow_mutation, "task": packet})
         return result
+
+    def plan(self, command: str, *, execute: bool = False, allow_mutation: bool = False) -> dict[str, Any]:
+        answer = self.planner.plan_and_optionally_execute(command, execute=execute, allow_mutation=allow_mutation)
+        answer["version"] = JARVIS_VERSION
+        answer["api_contract_version"] = API_CONTRACT_VERSION
+        self.ledger.append({"kind": "plan", "command": command, "execute": execute, "allow_mutation": allow_mutation, "plan": answer.get("plan"), "execution": answer.get("execution")})
+        return answer
+
+    def run_plan(self, plan: dict[str, Any], *, allow_mutation: bool = False) -> dict[str, Any]:
+        execution = self.planner.execute_plan(plan, allow_mutation=allow_mutation)
+        answer = {"ok": execution.get("ok", False), "version": JARVIS_VERSION, "api_contract_version": API_CONTRACT_VERSION, "execution": execution, "claim_boundary": "Executed only whitelisted local integration skills."}
+        self.ledger.append({"kind": "run_plan", "allow_mutation": allow_mutation, "plan": plan, "execution": execution})
+        return answer
 
     def memory_search(self, query: str, *, limit: int = 10) -> dict[str, Any]:
         q = query.lower().strip()
         rows = _read_jsonl(self.config.memory_path)
         hits = [row for row in rows if q in json.dumps(row, sort_keys=True).lower()]
-        return {
-            "ok": True,
-            "version": JARVIS_VERSION,
-            "api_contract_version": API_CONTRACT_VERSION,
-            "query": query,
-            "hits": hits[-max(1, int(limit)):],
-            "memory_path": self.config.memory_path,
-            "claim_boundary": "Local JSONL memory search only.",
-        }
+        return {"ok": True, "version": JARVIS_VERSION, "api_contract_version": API_CONTRACT_VERSION, "query": query, "hits": hits[-max(1, int(limit)):], "memory_path": self.config.memory_path, "claim_boundary": "Local JSONL memory search only."}
 
     def ledger_recent(self, limit: int = 10) -> dict[str, Any]:
-        return {
-            "ok": True,
-            "version": JARVIS_VERSION,
-            "api_contract_version": API_CONTRACT_VERSION,
-            "entries": self.ledger.recent(limit=limit),
-            "ledger_path": self.config.ledger_path,
-        }
+        return {"ok": True, "version": JARVIS_VERSION, "api_contract_version": API_CONTRACT_VERSION, "entries": self.ledger.recent(limit=limit), "ledger_path": self.config.ledger_path}
 
     def ledger_search(self, query: str, *, limit: int = 10) -> dict[str, Any]:
-        return {
-            "ok": True,
-            "version": JARVIS_VERSION,
-            "api_contract_version": API_CONTRACT_VERSION,
-            "query": query,
-            "entries": self.ledger.search(query, limit=limit),
-            "ledger_path": self.config.ledger_path,
-        }
+        return {"ok": True, "version": JARVIS_VERSION, "api_contract_version": API_CONTRACT_VERSION, "query": query, "entries": self.ledger.search(query, limit=limit), "ledger_path": self.config.ledger_path}
 
 
 def _json_response(handler: BaseHTTPRequestHandler, code: int, payload: dict[str, Any]) -> None:
@@ -227,7 +195,7 @@ def _json_response(handler: BaseHTTPRequestHandler, code: int, payload: dict[str
 
 def make_jarvis_handler(runtime: TesseractJarvisRuntime):
     class JarvisHandler(BaseHTTPRequestHandler):
-        server_version = "TesseractJarvisRuntime/1.1"
+        server_version = "TesseractJarvisRuntime/1.2"
 
         def log_message(self, fmt: str, *args: Any) -> None:
             return
@@ -237,18 +205,14 @@ def make_jarvis_handler(runtime: TesseractJarvisRuntime):
             path = parsed.path
             params = parse_qs(parsed.query)
             if path == "/health":
-                _json_response(self, 200, runtime.health())
-                return
+                _json_response(self, 200, runtime.health()); return
             if path == "/contract":
-                _json_response(self, 200, runtime.contract())
-                return
+                _json_response(self, 200, runtime.contract()); return
             if path == "/skills" or path == "/integration/skills":
-                _json_response(self, 200, runtime.skills())
-                return
+                _json_response(self, 200, runtime.skills()); return
             if path == "/ledger/recent":
                 limit = int(params.get("limit", ["10"])[0])
-                _json_response(self, 200, runtime.ledger_recent(limit=limit))
-                return
+                _json_response(self, 200, runtime.ledger_recent(limit=limit)); return
             _json_response(self, 404, {"ok": False, "error": f"unknown endpoint: {path}"})
 
         def do_POST(self) -> None:
@@ -259,26 +223,17 @@ def make_jarvis_handler(runtime: TesseractJarvisRuntime):
                 raw = self.rfile.read(length).decode("utf-8") if length else "{}"
                 payload = json.loads(raw)
                 if path == "/command":
-                    _json_response(self, 200, runtime.command(
-                        str(payload.get("command", "")),
-                        execute=bool(payload.get("execute", True)),
-                        allow_mutation=bool(payload.get("allow_mutation", False)),
-                        style=str(payload.get("style", "operator")),
-                    ))
-                    return
+                    _json_response(self, 200, runtime.command(str(payload.get("command", "")), execute=bool(payload.get("execute", True)), allow_mutation=bool(payload.get("allow_mutation", False)), style=str(payload.get("style", "operator")))); return
                 if path == "/task":
-                    _json_response(self, 200, runtime.task(
-                        str(payload.get("skill_id", "")),
-                        params=dict(payload.get("params", {})),
-                        allow_mutation=bool(payload.get("allow_mutation", False)),
-                    ))
-                    return
+                    _json_response(self, 200, runtime.task(str(payload.get("skill_id", "")), params=dict(payload.get("params", {})), allow_mutation=bool(payload.get("allow_mutation", False)))); return
+                if path == "/plan":
+                    _json_response(self, 200, runtime.plan(str(payload.get("command", "")), execute=bool(payload.get("execute", False)), allow_mutation=bool(payload.get("allow_mutation", False)))); return
+                if path == "/run_plan":
+                    _json_response(self, 200, runtime.run_plan(dict(payload.get("plan", {})), allow_mutation=bool(payload.get("allow_mutation", False)))); return
                 if path == "/memory/search":
-                    _json_response(self, 200, runtime.memory_search(str(payload.get("query", "")), limit=int(payload.get("limit", 10))))
-                    return
+                    _json_response(self, 200, runtime.memory_search(str(payload.get("query", "")), limit=int(payload.get("limit", 10)))); return
                 if path == "/ledger/search":
-                    _json_response(self, 200, runtime.ledger_search(str(payload.get("query", "")), limit=int(payload.get("limit", 10))))
-                    return
+                    _json_response(self, 200, runtime.ledger_search(str(payload.get("query", "")), limit=int(payload.get("limit", 10)))); return
                 _json_response(self, 404, {"ok": False, "error": f"unknown endpoint: {path}"})
             except Exception as exc:
                 _json_response(self, 400, {"ok": False, "error": str(exc)})
@@ -298,31 +253,13 @@ def run_jarvis_server(
     port: int = 8767,
     map_location: str = "cpu",
 ) -> None:
-    runtime = TesseractJarvisRuntime(JarvisServiceConfig(
-        checkpoint=str(checkpoint),
-        replay_path=str(replay_path),
-        memory_path=str(memory_path),
-        ledger_path=str(ledger_path),
-        contract_path=str(contract_path),
-        map_location=map_location,
-        repo_root=str(repo_root),
-    ))
+    runtime = TesseractJarvisRuntime(JarvisServiceConfig(checkpoint=str(checkpoint), replay_path=str(replay_path), memory_path=str(memory_path), ledger_path=str(ledger_path), contract_path=str(contract_path), map_location=map_location, repo_root=str(repo_root)))
     server = ThreadingHTTPServer((host, int(port)), make_jarvis_handler(runtime))
-    print(json.dumps({
-        "ok": True,
-        "runtime": "TesseractJarvisRuntime",
-        "version": JARVIS_VERSION,
-        "api_contract_version": API_CONTRACT_VERSION,
-        "url": f"http://{host}:{port}",
-        "endpoints": ["/health", "/contract", "/skills", "/integration/skills", "/command", "/task", "/memory/search", "/ledger/recent", "/ledger/search"],
-        "checkpoint": str(checkpoint),
-        "contract_path": str(contract_path),
-        "claim_boundary": "Local Jarvis service. Stop with Ctrl+C.",
-    }, indent=2, sort_keys=True))
+    print(json.dumps({"ok": True, "runtime": "TesseractJarvisRuntime", "version": JARVIS_VERSION, "api_contract_version": API_CONTRACT_VERSION, "url": f"http://{host}:{port}", "endpoints": ["/health", "/contract", "/skills", "/integration/skills", "/command", "/task", "/plan", "/run_plan", "/memory/search", "/ledger/recent", "/ledger/search"], "checkpoint": str(checkpoint), "contract_path": str(contract_path), "claim_boundary": "Local Jarvis service. Stop with Ctrl+C."}, indent=2, sort_keys=True))
     try:
         server.serve_forever()
     except KeyboardInterrupt:
-        print("\nTPN v1.1 Jarvis service stopped.")
+        print("\nTPN v1.2 Jarvis service stopped.")
 
 
 def main() -> None:
@@ -342,34 +279,18 @@ def main() -> None:
     parser.add_argument("--allow-mutation", action="store_true")
     parser.add_argument("--task", default="")
     parser.add_argument("--params-json", default="{}")
+    parser.add_argument("--plan", default="")
     args = parser.parse_args()
 
     if args.serve:
-        run_jarvis_server(
-            checkpoint=args.checkpoint,
-            replay_path=args.replay_path,
-            memory_path=args.memory_path,
-            ledger_path=args.ledger_path,
-            contract_path=args.contract_path,
-            repo_root=args.repo_root,
-            host=args.host,
-            port=args.port,
-            map_location=args.map_location,
-        )
+        run_jarvis_server(checkpoint=args.checkpoint, replay_path=args.replay_path, memory_path=args.memory_path, ledger_path=args.ledger_path, contract_path=args.contract_path, repo_root=args.repo_root, host=args.host, port=args.port, map_location=args.map_location)
         return
 
-    runtime = TesseractJarvisRuntime(JarvisServiceConfig(
-        checkpoint=args.checkpoint,
-        replay_path=args.replay_path,
-        memory_path=args.memory_path,
-        ledger_path=args.ledger_path,
-        contract_path=args.contract_path,
-        map_location=args.map_location,
-        repo_root=args.repo_root,
-    ))
+    runtime = TesseractJarvisRuntime(JarvisServiceConfig(checkpoint=args.checkpoint, replay_path=args.replay_path, memory_path=args.memory_path, ledger_path=args.ledger_path, contract_path=args.contract_path, map_location=args.map_location, repo_root=args.repo_root))
     if args.task:
-        print(json.dumps(runtime.task(args.task, params=json.loads(args.params_json), allow_mutation=args.allow_mutation), indent=2, sort_keys=True))
-        return
+        print(json.dumps(runtime.task(args.task, params=json.loads(args.params_json), allow_mutation=args.allow_mutation), indent=2, sort_keys=True)); return
+    if args.plan:
+        print(json.dumps(runtime.plan(args.plan, execute=args.execute, allow_mutation=args.allow_mutation), indent=2, sort_keys=True)); return
     print(json.dumps(runtime.command(args.command, execute=args.execute, allow_mutation=args.allow_mutation), indent=2, sort_keys=True))
 
 

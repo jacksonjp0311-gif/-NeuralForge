@@ -204,3 +204,5 @@ from neuralforge.tesseract import (
 )
 
 from neuralforge.tesseract import TesseractIntegrationBus
+
+from neuralforge.tesseract import TesseractTaskPlanner

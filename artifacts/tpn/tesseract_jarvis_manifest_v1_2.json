@@ -1,0 +1,82 @@
+{
+  "action_packet_version": "tpn.action.v1.0",
+  "api_contract_version": "jarvis.api.v1",
+  "claim_boundary": "Local governed Jarvis substrate over weighted TPN. No arbitrary shell execution, no external model call, no autonomous authority.",
+  "endpoint_count": 11,
+  "endpoints": [
+    {
+      "description": "Runtime health and paths.",
+      "method": "GET",
+      "path": "/health"
+    },
+    {
+      "description": "Stable contract manifest.",
+      "method": "GET",
+      "path": "/contract"
+    },
+    {
+      "description": "Explicit local skill manifest.",
+      "method": "GET",
+      "path": "/skills"
+    },
+    {
+      "description": "Explicit integration skill manifest.",
+      "method": "GET",
+      "path": "/integration/skills"
+    },
+    {
+      "description": "Route an English command through TPN.",
+      "method": "POST",
+      "path": "/command"
+    },
+    {
+      "description": "Execute a governed local integration task.",
+      "method": "POST",
+      "path": "/task"
+    },
+    {
+      "description": "Convert English intent into a bounded local task plan.",
+      "method": "POST",
+      "path": "/plan"
+    },
+    {
+      "description": "Execute a bounded task plan through the integration bus.",
+      "method": "POST",
+      "path": "/run_plan"
+    },
+    {
+      "description": "Search local JSONL command memory.",
+      "method": "POST",
+      "path": "/memory/search"
+    },
+    {
+      "description": "Read recent local action ledger entries.",
+      "method": "GET",
+      "path": "/ledger/recent"
+    },
+    {
+      "description": "Search local action ledger entries.",
+      "method": "POST",
+      "path": "/ledger/search"
+    }
+  ],
+  "integration_task_version": "tpn.integration_task.v1.1",
+  "plan_packet_version": "tpn.plan.v1.2",
+  "runtime": "TesseractJarvisRuntime",
+  "runtime_artifact_policy": {
+    "commit": [
+      "source code",
+      "tests",
+      "docs",
+      "stable seed checkpoints intentionally promoted",
+      "stable contract manifest"
+    ],
+    "ignore": [
+      "runtime command memory JSONL",
+      "runtime action ledger JSONL",
+      "demo scratch ledgers",
+      "local process/cache residue"
+    ]
+  },
+  "version": "tpn.v1.2"
+}
