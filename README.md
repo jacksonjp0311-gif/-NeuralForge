@@ -127,6 +127,17 @@ Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 5. **Verify** — Measures improvement after each action
 6. **Accumulate** — Knowledge base grows with every execution
 
+## Tesseract Pathway Network v1.6
+
+TPN v1.6 adds the Self-Improvement Proposal Core.
+
+```text
+benchmark evidence + episodic memory evidence -> risk-scored improvement proposals
+```
+
+The system can now propose next actions without mutating code or repository state.
+See [`docs/TESSERACT_PATHWAY_NETWORK_v1_6.md`](./docs/TESSERACT_PATHWAY_NETWORK_v1_6.md).
+
 ## Tesseract Pathway Network v1.5
 
 TPN v1.5 adds the Episodic Memory Core.

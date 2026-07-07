@@ -103,6 +103,10 @@ __all__ = [
     "MEMORY_CORE_VERSION",
     "TesseractEpisodicMemory",
     "TesseractMemoryEpisode",
+    "IMPROVEMENT_VERSION",
+    "TesseractImprovementProposal",
+    "TesseractImprovementProposalEngine",
+    "run_improvement_proposals",
 ]
 from neuralforge.tesseract.checkpoint import TesseractCheckpointConfig, train_tpn_checkpoint, save_tpn_checkpoint, load_tpn_checkpoint
 from neuralforge.tesseract.mind import TesseractMindCore
@@ -117,3 +121,4 @@ from neuralforge.tesseract.planner import TesseractPlanStep, TesseractTaskPlan, 
 from neuralforge.tesseract.cycle import TesseractCycleEngine, TesseractCycleObservation, TesseractCycleReport
 from neuralforge.tesseract.benchmark import BENCHMARK_VERSION, TesseractBenchmarkCase, TesseractBenchmarkHarness, TesseractBenchmarkResult, default_benchmark_cases
 from neuralforge.tesseract.memory_core import MEMORY_CORE_VERSION, TesseractEpisodicMemory, TesseractMemoryEpisode
+from neuralforge.tesseract.improvement import IMPROVEMENT_VERSION, TesseractImprovementProposal, TesseractImprovementProposalEngine, run_improvement_proposals

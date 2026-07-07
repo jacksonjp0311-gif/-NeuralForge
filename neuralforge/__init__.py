@@ -212,3 +212,5 @@ from neuralforge.tesseract import TesseractCycleEngine
 from neuralforge.tesseract import TesseractBenchmarkHarness
 
 from neuralforge.tesseract import TesseractEpisodicMemory
+
+from neuralforge.tesseract import TesseractImprovementProposalEngine
