@@ -79,3 +79,5 @@ artifacts/tpn/approval_report_v*.json
 artifacts/tpn/approval_ledger_v*.jsonl
 artifacts/tpn/sandbox_plan_report_v*.json
 artifacts/tpn/sandbox_plan_history_v*.jsonl
+artifacts/tpn/source_intake_report_v*.json
+artifacts/tpn/source_intake_history_v*.jsonl

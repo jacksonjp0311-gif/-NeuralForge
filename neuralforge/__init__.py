@@ -232,3 +232,5 @@ from neuralforge.tesseract import TesseractCompressedControlBundle
 from neuralforge.tesseract import TesseractHumanApprovalLedger
 
 from neuralforge.tesseract import TesseractSandboxedPatchPlanner
+
+from neuralforge.tesseract import TesseractSourceIntakeGovernor

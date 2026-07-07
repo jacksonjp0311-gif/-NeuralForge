@@ -134,3 +134,4 @@ from neuralforge.tesseract.control_bundle import CONTROL_BUNDLE_VERSION, Tessera
 from neuralforge.tesseract.control_bundle import format_control_bundle_summary, summarize_control_bundle_report
 from neuralforge.tesseract.approval import APPROVAL_VERSION, TesseractApprovalDecision, TesseractHumanApprovalLedger
 from neuralforge.tesseract.sandbox_plan import SANDBOX_PLAN_VERSION, TesseractSandboxedPatchPlanReceipt, TesseractSandboxedPatchPlanner
+from neuralforge.tesseract.source_intake import SOURCE_INTAKE_VERSION, TesseractSourceIntakeGovernor, TesseractSourceIntakeReceipt, TesseractSourceSpec

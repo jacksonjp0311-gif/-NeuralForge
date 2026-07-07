@@ -127,6 +127,17 @@ Tested on real AGNT data (2,963 workflow executions, 10 workflows):
 5. **Verify** — Measures improvement after each action
 6. **Accumulate** — Knowledge base grows with every execution
 
+## Tesseract Pathway Network v1.16
+
+TPN v1.16 adds the External Source Intake Governor.
+
+```text
+telemetry/API/scrape candidates -> registry receipt -> provenance/compliance gates
+```
+
+This is intake governance only. It does not perform network calls, scraping, API pulls, raw collection, or mutation.
+See [`docs/TESSERACT_PATHWAY_NETWORK_v1_16.md`](./docs/TESSERACT_PATHWAY_NETWORK_v1_16.md).
+
 ## Tesseract Pathway Network v1.15
 
 TPN v1.15 adds the Sandboxed Patch Plan Receipt.
