@@ -216,3 +216,5 @@ from neuralforge.tesseract import TesseractEpisodicMemory
 from neuralforge.tesseract import TesseractImprovementProposalEngine
 
 from neuralforge.tesseract import TesseractGoalStateManager
+
+from neuralforge.tesseract import TesseractGoalAwareCycleRunner
